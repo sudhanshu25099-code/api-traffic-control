@@ -1,24 +1,38 @@
+import asyncio
 import time
-from fastapi import HTTPException
-from app.redis_client import redis_pool
-# Import the Lua script written by Tapendu
-from app.lua.scripts import TOKEN_BUCKET_LUA_SCRIPT 
 
-async def token_bucket_limiter(client_ip: str, capacity: int = 5, refill_rate: float = 1.0):
-    now = time.time()
-    redis_key = f"rate_limit:tb:{client_ip}"
+from app.models import Decision
 
-    allowed = await redis_pool.eval(
-        TOKEN_BUCKET_LUA_SCRIPT, 
-        1, 
-        redis_key, 
-        capacity, 
-        refill_rate, 
-        now
-    )
-    
-    if not allowed:
-        raise HTTPException(
-            status_code=429, 
-            detail={"error": "Too Many Requests", "algorithm": "Token Bucket", "message": "Bucket empty"}
+
+class InProcessTokenBucket:
+    """In-process token bucket — deliberately NOT atomic (baseline)."""
+
+    def __init__(self) -> None:
+        self._buckets: dict[str, dict] = {}
+
+    async def check(
+        self, key: str, capacity: int, refill_rate: float
+    ) -> Decision:
+        now = time.time()
+        bucket = self._buckets.get(key)
+        if bucket is None:
+            bucket = {"tokens": float(capacity), "last_refill": now}
+            self._buckets[key] = bucket
+
+        elapsed = max(0.0, now - bucket["last_refill"])
+        tokens = min(float(capacity), bucket["tokens"] + elapsed * refill_rate)
+
+        await asyncio.sleep(0)         # yield → race window
+
+        allowed = tokens >= 1
+        if allowed:
+            tokens -= 1
+
+        bucket["tokens"] = tokens
+        bucket["last_refill"] = now
+
+        remaining = int(tokens)
+        reset_at = (
+            int(now + (capacity - tokens) / refill_rate) if refill_rate > 0 else int(now + 60)
         )
+        return Decision(allowed, remaining, reset_at, capacity)

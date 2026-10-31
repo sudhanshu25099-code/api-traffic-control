@@ -1,15 +1,17 @@
-# 1. BASE IMAGE
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-# 2. WORK DIRECTORY
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# 3. DEPENDENCY INSTALLATION
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4. COPY SOURCE CODE
-COPY . .
+COPY app ./app
+COPY sql ./sql
+COPY .env.example ./.env.example
 
-# 5. STARTUP COMMAND
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
