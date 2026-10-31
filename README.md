@@ -266,8 +266,8 @@ Run it again against a cached variant (add a 1s rule cache) to measure the cost 
 
 | Member | Owns |
 |---|---|
-| **[Sudhanshu Shekhar Jha]** | Backend: middleware, Lua scripts, Redis integration, routers, Python limiters, tests, Locust, staleness experiment, Dockerfile |
-| **[Tapendu Das]** | Database: schema, indexes (including the `UNIQUE` index on `api_key` that makes the per-request lookup sub-ms), seed data, `crud.py` SQL, Postgres service in compose |
+| **Sudhanshu Shekhar Jha** | Backend: middleware, Lua scripts, Redis integration, routers, Python limiters, tests, Locust, staleness experiment, Dockerfile |
+| **Tapendu Das** | Database: schema, indexes (including the `UNIQUE` index on `api_key` that makes the per-request lookup sub-ms), seed data, `crud.py` SQL, Postgres service in compose |
 
 `crud.py`'s signature is the agreed boundary: `async def get_rule_by_api_key(session, api_key) -> Rule | None`. Only the DB owner edits the SQL inside.
 
