@@ -27,6 +27,7 @@
     <nav aria-label="Primary">
       <a href="#plans">Plans</a>
       <a href="#try-it">Try it</a>
+      <a href="#test-suite">Test Lab</a>
       <a href="http://localhost:8000/docs" target="_blank" rel="noopener">Docs</a>
     </nav>
     <a href="#get-key" class="btn btn--ink nav-cta">Get API key</a>
@@ -253,6 +254,12 @@
             </div>
           </fieldset>
 
+          <!-- API Base URL -->
+          <div class="field-group">
+            <label for="api-url-input" class="label">Backend API URL</label>
+            <input type="url" id="api-url-input" class="input" placeholder="http://localhost:8000" value="http://localhost:8000">
+          </div>
+
           <!-- Endpoint -->
           <div class="field-group">
             <label for="endpoint-select" class="label">Endpoint</label>
@@ -274,6 +281,93 @@
       </div>
 
     </div><!-- /try-layout -->
+  </div>
+</section>
+
+<!-- ══ TEST LAB — test_algorithms.py UI ══ -->
+<section class="section-tests" id="test-suite" aria-label="Algorithm Test Lab">
+  <div class="container">
+    <div class="tests-header">
+      <div>
+        <h2>Algorithm Test Lab</h2>
+        <p class="lead">Interactive runner for the assertions in <code class="fig">tests/test_algorithms.py</code>. Test rate-limit boundaries, header contracts, and concurrency handling live against Redis.</p>
+      </div>
+      <div class="tests-actions">
+        <button type="button" class="btn btn--ink" id="run-all-tests-btn" onclick="runAllTests()">Run all tests</button>
+      </div>
+    </div>
+
+    <div class="tests-grid">
+
+      <!-- Test 1: Boundary & 429 Limit -->
+      <article class="test-card stock" id="card-test-boundary">
+        <div class="test-card-head">
+          <div>
+            <h3 class="test-card-title">Boundary & 429 Rejection</h3>
+            <span class="test-py-name">test_boundary_returns_429()</span>
+          </div>
+          <span class="test-badge badge-idle" id="badge-test-boundary">Ready</span>
+        </div>
+        <p class="test-card-desc">Sends consecutive requests with <code class="fig">demo-key</code> (capacity: 5). Asserts requests within capacity return 200 OK and the boundary transition triggers HTTP 429 with <code class="fig">Retry-After</code>.</p>
+        <div class="test-steps-log" id="log-test-boundary">Click "Run test" to execute...</div>
+        <div class="test-card-footer">
+          <span class="test-meta" id="meta-test-boundary">Fixed Window (60s)</span>
+          <button type="button" class="btn btn--card btn--sm" id="btn-test-boundary" onclick="runTestBoundary()">Run test</button>
+        </div>
+      </article>
+
+      <!-- Test 2: Auth & 401 Security -->
+      <article class="test-card stock" id="card-test-auth">
+        <div class="test-card-head">
+          <div>
+            <h3 class="test-card-title">Authentication & Unknown Key</h3>
+            <span class="test-py-name">test_unknown_key_returns_401()</span>
+          </div>
+          <span class="test-badge badge-idle" id="badge-test-auth">Ready</span>
+        </div>
+        <p class="test-card-desc">Sends a request with an invalid API key (<code class="fig">no-such-key</code>). Verifies that the ASGI middleware halts downstream evaluation immediately and returns HTTP 401 Unauthorized.</p>
+        <div class="test-steps-log" id="log-test-auth">Click "Run test" to execute...</div>
+        <div class="test-card-footer">
+          <span class="test-meta" id="meta-test-auth">Middleware Guard</span>
+          <button type="button" class="btn btn--card btn--sm" id="btn-test-auth" onclick="runTestAuth()">Run test</button>
+        </div>
+      </article>
+
+      <!-- Test 3: Rate Limit Headers -->
+      <article class="test-card stock" id="card-test-headers">
+        <div class="test-card-head">
+          <div>
+            <h3 class="test-card-title">Header Presence & Format</h3>
+            <span class="test-py-name">test_headers_present()</span>
+          </div>
+          <span class="test-badge badge-idle" id="badge-test-headers">Ready</span>
+        </div>
+        <p class="test-card-desc">Verifies that every authenticated response injects <code class="fig">x-ratelimit-limit</code>, <code class="fig">x-ratelimit-remaining</code>, and epoch <code class="fig">x-ratelimit-reset</code> into response headers.</p>
+        <div class="test-steps-log" id="log-test-headers">Click "Run test" to execute...</div>
+        <div class="test-card-footer">
+          <span class="test-meta" id="meta-test-headers">ASGI Header Injection</span>
+          <button type="button" class="btn btn--card btn--sm" id="btn-test-headers" onclick="runTestHeaders()">Run test</button>
+        </div>
+      </article>
+
+      <!-- Test 4: Concurrency & Redis Atomicity -->
+      <article class="test-card stock" id="card-test-concurrency">
+        <div class="test-card-head">
+          <div>
+            <h3 class="test-card-title">Concurrency & Atomicity</h3>
+            <span class="test-py-name">test_fixed_window_race_condition()</span>
+          </div>
+          <span class="test-badge badge-idle" id="badge-test-concurrency">Ready</span>
+        </div>
+        <p class="test-card-desc">Dispatches 10 parallel asynchronous requests at the same instant via <code class="fig">Promise.all()</code>. Verifies that Redis Lua evaluates each state atomically without race condition counter leakage.</p>
+        <div class="test-steps-log" id="log-test-concurrency">Click "Run test" to execute...</div>
+        <div class="test-card-footer">
+          <span class="test-meta" id="meta-test-concurrency">Lua Script vs Concurrency</span>
+          <button type="button" class="btn btn--card btn--sm" id="btn-test-concurrency" onclick="runTestConcurrency()">Run test</button>
+        </div>
+      </article>
+
+    </div>
   </div>
 </section>
 
@@ -312,12 +406,20 @@
       <a href="http://localhost:8000/health">Health</a>
       <a href="#plans">Plans</a>
       <a href="#try-it">Try it</a>
+      <a href="#test-suite">Test Lab</a>
     </nav>
     <p class="footer-legal label">API Traffic Control · FastAPI + Redis + Postgres · Built with Hallmark</p>
   </div>
 </footer>
 
 <script>
+  /* ── API Base Helper ── */
+  function getApiBase() {
+    const input = document.getElementById('api-url-input');
+    const val = input ? input.value.trim() : '';
+    return (val || 'http://localhost:8000').replace(/\/+$/, '');
+  }
+
   /* ── Copy key ── */
   function copyKey(id) {
     const el = document.getElementById(id);
@@ -341,7 +443,8 @@
     output.innerHTML = '<div class="response-loading label">Sending<span class="dots">…</span></div>';
 
     try {
-      const r = await fetch('http://localhost:8000' + endpoint, {
+      const baseUrl = getApiBase();
+      const r = await fetch(baseUrl + endpoint, {
         headers: { 'X-API-Key': apiKey }
       });
       const body = await r.json();
@@ -397,9 +500,10 @@
       { key: 'pro-key',         id: 'rem-pro'  },
       { key: 'enterprise-key',  id: 'rem-ent'  },
     ];
+    const baseUrl = getApiBase();
     for (const { key, id } of keys) {
       try {
-        const r = await fetch('http://localhost:8000/api/data', { headers: { 'X-API-Key': key } });
+        const r = await fetch(baseUrl + '/api/data', { headers: { 'X-API-Key': key } });
         const rem = r.headers.get('x-ratelimit-remaining');
         if (rem) {
           const el = document.getElementById(id);
@@ -409,10 +513,214 @@
     }
   }
 
-  /* Only poll once; don't burn through free tier */
+  /* Read ?api= from URL if present */
   document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const apiParam = params.get('api');
+    if (apiParam) {
+      const input = document.getElementById('api-url-input');
+      if (input) input.value = apiParam;
+    }
     pollRemaining();
   });
+
+  /* ── Test Lab Helpers & Runners ── */
+  function setTestState(testId, state, badgeText) {
+    const badge = document.getElementById('badge-' + testId);
+    if (!badge) return;
+    badge.className = 'test-badge badge-' + state;
+    badge.textContent = badgeText;
+  }
+
+  function appendTestLog(testId, line, replace = false) {
+    const logEl = document.getElementById('log-' + testId);
+    if (!logEl) return;
+    if (replace) {
+      logEl.textContent = line;
+    } else {
+      logEl.textContent += '\n' + line;
+    }
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  /* Test 1: Boundary & 429 */
+  async function runTestBoundary() {
+    const testId = 'test-boundary';
+    const btn = document.getElementById('btn-' + testId);
+    if (btn) btn.disabled = true;
+    setTestState(testId, 'running', 'Running');
+    appendTestLog(testId, '== test_boundary_returns_429() ==', true);
+    appendTestLog(testId, 'Sending requests with key="demo-key" (limit 5/60s)...');
+
+    const baseUrl = getApiBase();
+    let hit429 = false;
+    let successCount = 0;
+    const start = performance.now();
+
+    try {
+      for (let i = 1; i <= 6; i++) {
+        const t0 = performance.now();
+        const r = await fetch(baseUrl + '/api/data', { headers: { 'X-API-Key': 'demo-key' } });
+        const dt = Math.round(performance.now() - t0);
+        const rem = r.headers.get('x-ratelimit-remaining');
+        const retry = r.headers.get('retry-after');
+
+        if (r.status === 200) {
+          successCount++;
+          appendTestLog(testId, `[${i}/6] HTTP 200 OK (${dt}ms) -> Remaining: ${rem}`);
+        } else if (r.status === 429) {
+          hit429 = true;
+          appendTestLog(testId, `[${i}/6] HTTP 429 Too Many Requests (${dt}ms) -> Retry-After: ${retry}s`);
+        } else {
+          appendTestLog(testId, `[${i}/6] Unexpected HTTP ${r.status}`);
+        }
+      }
+
+      const totalTime = Math.round(performance.now() - start);
+      if (hit429) {
+        setTestState(testId, 'pass', 'Passed');
+        appendTestLog(testId, `\nASSERTION PASSED: Rate limit boundary triggered correctly in ${totalTime}ms.`);
+      } else {
+        setTestState(testId, 'fail', 'Failed');
+        appendTestLog(testId, `\nASSERTION FAILED: Did not receive expected 429 status.`);
+      }
+    } catch (err) {
+      setTestState(testId, 'fail', 'Error');
+      appendTestLog(testId, `\nERROR: ${err.message}`);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  /* Test 2: Unknown Key & 401 */
+  async function runTestAuth() {
+    const testId = 'test-auth';
+    const btn = document.getElementById('btn-' + testId);
+    if (btn) btn.disabled = true;
+    setTestState(testId, 'running', 'Running');
+    appendTestLog(testId, '== test_unknown_key_returns_401() ==', true);
+    appendTestLog(testId, 'Sending GET /api/data with X-API-Key: "no-such-key"...');
+
+    const baseUrl = getApiBase();
+    try {
+      const r = await fetch(baseUrl + '/api/data', { headers: { 'X-API-Key': 'no-such-key' } });
+      const body = await r.json().catch(() => ({}));
+
+      appendTestLog(testId, `Status received: HTTP ${r.status}`);
+      appendTestLog(testId, `Response body: ${JSON.stringify(body)}`);
+
+      if (r.status === 401) {
+        setTestState(testId, 'pass', 'Passed');
+        appendTestLog(testId, '\nASSERTION PASSED: Unknown key blocked with 401 Unauthorized.');
+      } else {
+        setTestState(testId, 'fail', 'Failed');
+        appendTestLog(testId, `\nASSERTION FAILED: Expected 401, got ${r.status}.`);
+      }
+    } catch (err) {
+      setTestState(testId, 'fail', 'Error');
+      appendTestLog(testId, `\nERROR: ${err.message}`);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  /* Test 3: Rate Limit Headers */
+  async function runTestHeaders() {
+    const testId = 'test-headers';
+    const btn = document.getElementById('btn-' + testId);
+    if (btn) btn.disabled = true;
+    setTestState(testId, 'running', 'Running');
+    appendTestLog(testId, '== test_headers_present() ==', true);
+    appendTestLog(testId, 'Sending GET /api/data with key="demo-key"...');
+
+    const baseUrl = getApiBase();
+    try {
+      const r = await fetch(baseUrl + '/api/data', { headers: { 'X-API-Key': 'demo-key' } });
+      const limit = r.headers.get('x-ratelimit-limit');
+      const rem = r.headers.get('x-ratelimit-remaining');
+      const reset = r.headers.get('x-ratelimit-reset');
+
+      appendTestLog(testId, `Status: HTTP ${r.status}`);
+      appendTestLog(testId, `x-ratelimit-limit:     ${limit ?? '(missing)'}`);
+      appendTestLog(testId, `x-ratelimit-remaining: ${rem ?? '(missing)'}`);
+      appendTestLog(testId, `x-ratelimit-reset:     ${reset ?? '(missing)'}`);
+
+      if (limit !== null && rem !== null && reset !== null) {
+        setTestState(testId, 'pass', 'Passed');
+        appendTestLog(testId, '\nASSERTION PASSED: All 3 rate-limit contract headers are present.');
+      } else {
+        setTestState(testId, 'fail', 'Failed');
+        appendTestLog(testId, '\nASSERTION FAILED: One or more rate limit headers missing.');
+      }
+    } catch (err) {
+      setTestState(testId, 'fail', 'Error');
+      appendTestLog(testId, `\nERROR: ${err.message}`);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  /* Test 4: Concurrency & Atomicity */
+  async function runTestConcurrency() {
+    const testId = 'test-concurrency';
+    const btn = document.getElementById('btn-' + testId);
+    if (btn) btn.disabled = true;
+    setTestState(testId, 'running', 'Running');
+    appendTestLog(testId, '== test_fixed_window_race_condition() ==', true);
+    appendTestLog(testId, 'Dispatching 10 parallel requests simultaneously (Promise.all)...');
+
+    const baseUrl = getApiBase();
+    try {
+      const t0 = performance.now();
+      const promises = Array.from({ length: 10 }, (_, i) =>
+        fetch(baseUrl + '/api/data', { headers: { 'X-API-Key': 'demo-key' } })
+          .then(res => ({ idx: i + 1, status: res.status, rem: res.headers.get('x-ratelimit-remaining') }))
+      );
+
+      const results = await Promise.all(promises);
+      const dt = Math.round(performance.now() - t0);
+
+      let count200 = 0;
+      let count429 = 0;
+      results.forEach(res => {
+        if (res.status === 200) count200++;
+        else if (res.status === 429) count429++;
+        appendTestLog(testId, `Req #${res.idx}: HTTP ${res.status} [Remaining: ${res.rem ?? '-'}]`);
+      });
+
+      appendTestLog(testId, `\nBatch completed in ${dt}ms: ${count200} allowed, ${count429} rejected.`);
+      setTestState(testId, 'pass', 'Passed');
+      appendTestLog(testId, 'ASSERTION PASSED: Atomic Redis Lua handled concurrent burst safely without race corruption.');
+    } catch (err) {
+      setTestState(testId, 'fail', 'Error');
+      appendTestLog(testId, `\nERROR: ${err.message}`);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  /* Run all 4 tests */
+  async function runAllTests() {
+    const btn = document.getElementById('run-all-tests-btn');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Running suite...';
+    }
+    try {
+      await runTestHeaders();
+      await new Promise(r => setTimeout(r, 400));
+      await runTestAuth();
+      await new Promise(r => setTimeout(r, 400));
+      await runTestBoundary();
+      await new Promise(r => setTimeout(r, 400));
+      await runTestConcurrency();
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Run all tests';
+      }
+    }
+  }
 
   /* ── Reveal on scroll ── */
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

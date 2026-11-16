@@ -469,6 +469,110 @@
 }
 .response-err { color: var(--color-muted); }
 
+/* ══ TEST LAB — test_algorithms.py UI ══ */
+.section-tests {
+  padding-block: var(--section-gap);
+  border-top: 1px solid var(--color-rule);
+}
+.tests-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-2xl);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+.tests-header h2 { margin-bottom: var(--space-xs); }
+.tests-header .lead { color: var(--color-ink-2); max-width: 54ch; }
+.tests-actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+.tests-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-columns);
+}
+.test-card {
+  border-radius: var(--radius-card);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  border: 1px solid var(--color-rule);
+}
+.test-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+.test-card-title {
+  font-size: var(--text-title);
+  font-weight: 600;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+.test-py-name {
+  font-family: var(--font-outlier);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  display: block;
+  margin-top: 2px;
+}
+.test-badge {
+  font-family: var(--font-outlier);
+  font-size: 0.6875rem;
+  padding: 3px var(--space-xs);
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-idle { background: var(--color-paper-3); color: var(--color-muted); }
+.badge-running { background: oklch(74% 0.125 30 / 0.15); color: var(--color-paid); }
+.badge-pass { background: oklch(55% 0.14 155 / 0.12); color: oklch(35% 0.1 155); }
+.badge-fail { background: oklch(50% 0.15 20 / 0.12); color: oklch(40% 0.15 20); }
+
+.test-card-desc {
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  line-height: 1.5;
+}
+.test-steps-log {
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-input);
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-outlier);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  min-height: 90px;
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: var(--color-ink);
+}
+.test-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-rule);
+}
+.test-meta {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+.btn--sm {
+  min-height: 38px;
+  padding: 0 var(--space-md);
+  font-size: var(--text-sm);
+}
+
 /* ══ CLOSE BAND ══ */
 .section-close {
   margin-block: var(--section-gap);
@@ -565,6 +669,7 @@
   .hero-cards { flex-direction: column; padding: 0; gap: var(--space-md); }
   .steps-list { grid-template-columns: 1fr; }
   .try-layout { grid-template-columns: 1fr; }
+  .tests-grid { grid-template-columns: 1fr; }
   .close-inner { grid-template-columns: 1fr; }
   .footer-inner { flex-direction: column; align-items: flex-start; }
   .footer-legal { margin-inline-start: 0; }
