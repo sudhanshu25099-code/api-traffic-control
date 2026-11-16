@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import engine
@@ -22,6 +23,15 @@ app = FastAPI(title=settings.APP_NAME, version="1.0.0", lifespan=lifespan)
 
 # Register the ASGI middleware (not @app.middleware("http") — that's BaseHTTPMiddleware)
 app.add_middleware(RateLimitMiddleware)
+
+# CORS — outermost middleware so OPTIONS preflight and rate limit responses carry CORS headers
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset", "Retry-After"],
+)
 
 app.include_router(dummy_api.router)
 app.include_router(admin.router)

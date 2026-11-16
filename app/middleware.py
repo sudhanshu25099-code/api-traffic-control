@@ -25,7 +25,7 @@ class RateLimitMiddleware:
             return
 
         path = scope.get("path", "")
-        if not any(path.startswith(p) for p in PROTECTED_PREFIXES):
+        if scope.get("method") == "OPTIONS" or not any(path.startswith(p) for p in PROTECTED_PREFIXES):
             await self.app(scope, receive, send)
             return
 

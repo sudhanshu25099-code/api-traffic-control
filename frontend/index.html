@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Traffic Control — Rate Limiting for Every Team</title>
+  <meta name="description" content="Atomic rate limiting with fixed-window and token-bucket algorithms. Three plans, one API key, zero guesswork.">
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<header class="site-nav" role="banner">
+  <div class="container nav-inner">
+    <a href="/" class="wordmark" aria-label="API Traffic Control home">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <rect x="1" y="4" width="18" height="2.5" rx="1.25" fill="currentColor"/>
+        <rect x="1" y="8.75" width="12" height="2.5" rx="1.25" fill="currentColor"/>
+        <rect x="1" y="13.5" width="8" height="2.5" rx="1.25" fill="currentColor"/>
+      </svg>
+      Traffic Control
+    </a>
+    <nav aria-label="Primary">
+      <a href="#plans">Plans</a>
+      <a href="#try-it">Try it</a>
+      <a href="http://localhost:8000/docs" target="_blank" rel="noopener">Docs</a>
+    </nav>
+    <a href="#get-key" class="btn btn--ink nav-cta">Get API key</a>
+  </div>
+</header>
+
+<!-- ══ HERO — Stage posture ══ -->
+<main>
+<section class="hero desk" aria-label="Hero">
+  <div class="container hero-inner">
+
+    <!-- Left column: headline -->
+    <div class="hero-text">
+      <h1>Rate limits that hold under pressure.</h1>
+      <p class="lead">Fixed-window and token-bucket algorithms enforced atomically in Redis. One key per account, three tiers, zero configuration drift.</p>
+      <div class="hero-actions">
+        <a href="#get-key" class="btn btn--ink">Get API key</a>
+        <a href="http://localhost:8000/docs" class="btn btn--card" target="_blank" rel="noopener">Open Swagger</a>
+      </div>
+      <p class="hero-sub">Free tier starts at 5 requests per minute.</p>
+    </div>
+
+    <!-- Right column: account cards on the desk -->
+    <div class="hero-cards" aria-label="Account tiers">
+
+      <!-- Free card -->
+      <article class="key-card stock" data-tier="free">
+        <div class="key-card-header">
+          <span class="key-card-tier label">Free</span>
+          <span class="key-card-algo label fig">fixed_window</span>
+        </div>
+        <p class="key-card-name">Demo Corp</p>
+        <div class="key-card-key">
+          <span class="label">API key</span>
+          <code class="fig key-value" id="key-free">demo-key</code>
+          <button class="copy-btn btn--card" onclick="copyKey('key-free')" aria-label="Copy demo-key">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <div class="key-card-limits">
+          <div class="limit-row">
+            <span class="label">Capacity</span>
+            <span class="fig">5 req</span>
+          </div>
+          <div class="limit-row">
+            <span class="label">Window</span>
+            <span class="fig">60 s</span>
+          </div>
+          <div class="limit-row">
+            <span class="label">Remaining</span>
+            <span class="fig remaining" id="rem-free">—</span>
+          </div>
+        </div>
+        <div class="key-card-stamp paid-stamp" aria-label="Active" role="status">Active</div>
+      </article>
+
+      <!-- Pro card -->
+      <article class="key-card stock" data-tier="pro">
+        <div class="key-card-header">
+          <span class="key-card-tier label">Pro</span>
+          <span class="key-card-algo label fig">token_bucket</span>
+        </div>
+        <p class="key-card-name">Pro Inc</p>
+        <div class="key-card-key">
+          <span class="label">API key</span>
+          <code class="fig key-value" id="key-pro">pro-key</code>
+          <button class="copy-btn btn--card" onclick="copyKey('key-pro')" aria-label="Copy pro-key">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <div class="key-card-limits">
+          <div class="limit-row">
+            <span class="label">Capacity</span>
+            <span class="fig">100 tokens</span>
+          </div>
+          <div class="limit-row">
+            <span class="label">Refill</span>
+            <span class="fig">1.67 / s</span>
+          </div>
+          <div class="limit-row">
+            <span class="label">Remaining</span>
+            <span class="fig remaining" id="rem-pro">—</span>
+          </div>
+        </div>
+        <div class="key-card-stamp paid-stamp" aria-label="Active" role="status">Active</div>
+      </article>
+
+      <!-- Enterprise card -->
+      <article class="key-card stock" data-tier="enterprise">
+        <div class="key-card-header">
+          <span class="key-card-tier label">Enterprise</span>
+          <span class="key-card-algo label fig">fixed_window</span>
+        </div>
+        <p class="key-card-name">Enterprise Ltd</p>
+        <div class="key-card-key">
+          <span class="label">API key</span>
+          <code class="fig key-value" id="key-ent">enterprise-key</code>
+          <button class="copy-btn btn--card" onclick="copyKey('key-ent')" aria-label="Copy enterprise-key">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <div class="key-card-limits">
+          <div class="limit-row">
+            <span class="label">Capacity</span>
+            <span class="fig">1,000 req</span>
+          </div>
+          <div class="limit-row">
+            <span class="label">Window</span>
+            <span class="fig">60 s</span>
+          </div>
+          <div class="limit-row">
+            <span class="label">Remaining</span>
+            <span class="fig remaining" id="rem-ent">—</span>
+          </div>
+        </div>
+        <div class="key-card-stamp paid-stamp" aria-label="Active" role="status">Active</div>
+      </article>
+
+    </div><!-- /hero-cards -->
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS — Steps ══ -->
+<section class="section-how" id="how-it-works">
+  <div class="container">
+    <h2>Three steps to working limits</h2>
+    <ol class="steps-list" role="list">
+      <li class="step-item stock">
+        <span class="step-num fig" aria-hidden="true">1</span>
+        <h3>Pick your plan</h3>
+        <p>Free starts at 5 requests per 60-second window. Pro runs a token bucket at 100 capacity, refilling 1.67 tokens each second. Enterprise holds 1,000 per window.</p>
+      </li>
+      <li class="step-item stock">
+        <span class="step-num fig" aria-hidden="true">2</span>
+        <h3>Send the header</h3>
+        <p>Every request to <code class="fig">/api/*</code> passes your key in <code class="fig">X-API-Key</code>. The middleware validates it against Postgres and runs the Lua limiter atomically in Redis.</p>
+      </li>
+      <li class="step-item stock">
+        <span class="step-num fig" aria-hidden="true">3</span>
+        <h3>Read the response headers</h3>
+        <p>Every response carries <code class="fig">X-RateLimit-Limit</code>, <code class="fig">X-RateLimit-Remaining</code> and <code class="fig">X-RateLimit-Reset</code>. A 429 adds <code class="fig">Retry-After</code>.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══ PLANS — Table ══ -->
+<section class="section-plans" id="plans">
+  <div class="container">
+    <h2>Plans</h2>
+    <p class="lead">All plans enforce limits atomically. No approximate counters.</p>
+
+    <div class="plans-table-wrap">
+      <table class="plans-table" aria-label="Plan comparison">
+        <thead>
+          <tr>
+            <th scope="col">Plan</th>
+            <th scope="col">Client</th>
+            <th scope="col">Algorithm</th>
+            <th scope="col">Capacity</th>
+            <th scope="col">Window / Refill</th>
+            <th scope="col">API key</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="plan-name">Free</td>
+            <td>Demo Corp</td>
+            <td><span class="algo-pill">fixed_window</span></td>
+            <td class="fig">5 req</td>
+            <td class="fig">60 s</td>
+            <td><code class="fig">demo-key</code></td>
+          </tr>
+          <tr class="plan-featured">
+            <td class="plan-name">Pro</td>
+            <td>Pro Inc</td>
+            <td><span class="algo-pill algo-pill--bucket">token_bucket</span></td>
+            <td class="fig">100 tokens</td>
+            <td class="fig">1.67 / s</td>
+            <td><code class="fig">pro-key</code></td>
+          </tr>
+          <tr>
+            <td class="plan-name">Enterprise</td>
+            <td>Enterprise Ltd</td>
+            <td><span class="algo-pill">fixed_window</span></td>
+            <td class="fig">1,000 req</td>
+            <td class="fig">60 s</td>
+            <td><code class="fig">enterprise-key</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══ LIVE TRY — Switcher ══ -->
+<section class="section-try" id="try-it">
+  <div class="container">
+
+    <div class="try-layout">
+      <div class="try-head">
+        <h2>Try a live request</h2>
+        <p class="lead">Pick an account and fire a request directly against the running API.</p>
+      </div>
+
+      <div class="try-panel stock">
+        <div class="try-controls">
+          <!-- Account switcher -->
+          <fieldset class="switcher-group">
+            <legend class="label">Account</legend>
+            <div class="switcher" role="group" aria-label="Choose account">
+              <label class="sw-label">
+                <input type="radio" name="acct" value="demo-key" checked class="sw-radio">
+                <span class="sw-pill">Free</span>
+              </label>
+              <label class="sw-label">
+                <input type="radio" name="acct" value="pro-key" class="sw-radio">
+                <span class="sw-pill">Pro</span>
+              </label>
+              <label class="sw-label">
+                <input type="radio" name="acct" value="enterprise-key" class="sw-radio">
+                <span class="sw-pill">Enterprise</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- Endpoint -->
+          <div class="field-group">
+            <label for="endpoint-select" class="label">Endpoint</label>
+            <select id="endpoint-select" class="input select-input">
+              <option value="/api/data">GET /api/data</option>
+              <option value="/api/heavy-computation">GET /api/heavy-computation</option>
+            </select>
+          </div>
+
+          <button type="button" class="btn btn--ink" id="fire-btn" onclick="fireRequest()">Send request</button>
+        </div>
+
+        <!-- Response display -->
+        <div class="try-response" id="try-response" aria-live="polite" aria-atomic="true">
+          <div class="response-placeholder">
+            <p class="label">Response will appear here.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /try-layout -->
+  </div>
+</section>
+
+<!-- ══ CLOSE BAND ══ -->
+<section class="section-close" id="get-key" aria-label="Get started">
+  <div class="container close-inner">
+    <div class="close-text">
+      <h2>Your first request in under a minute.</h2>
+      <p class="lead">Pass the key, read the headers. No SDK, no setup script.</p>
+    </div>
+    <div class="close-action">
+      <div class="code-block stock">
+        <code class="fig code-line">curl -H "X-API-Key: demo-key" \</code>
+        <code class="fig code-line">     http://localhost:8000/api/data</code>
+      </div>
+      <a href="http://localhost:8000/docs" class="btn btn--card" target="_blank" rel="noopener">Open full docs</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══ FOOTER — Mast ══ -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container footer-inner">
+    <div class="footer-wordmark">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <rect x="1" y="4" width="18" height="2.5" rx="1.25" fill="currentColor"/>
+        <rect x="1" y="8.75" width="12" height="2.5" rx="1.25" fill="currentColor"/>
+        <rect x="1" y="13.5" width="8" height="2.5" rx="1.25" fill="currentColor"/>
+      </svg>
+      <span>Traffic Control</span>
+    </div>
+    <nav class="footer-nav" aria-label="Footer">
+      <a href="http://localhost:8000/docs" target="_blank" rel="noopener">Swagger UI</a>
+      <a href="http://localhost:8000/health">Health</a>
+      <a href="#plans">Plans</a>
+      <a href="#try-it">Try it</a>
+    </nav>
+    <p class="footer-legal label">API Traffic Control · FastAPI + Redis + Postgres · Built with Hallmark</p>
+  </div>
+</footer>
+
+<script>
+  /* ── Copy key ── */
+  function copyKey(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+      const btn = el.closest('.key-card-key').querySelector('.copy-btn');
+      btn.setAttribute('aria-label', 'Copied');
+      setTimeout(() => btn.setAttribute('aria-label', 'Copy ' + el.textContent.trim()), 1500);
+    }).catch(() => {});
+  }
+
+  /* ── Fire request ── */
+  async function fireRequest() {
+    const btn = document.getElementById('fire-btn');
+    const output = document.getElementById('try-response');
+    const apiKey = document.querySelector('input[name="acct"]:checked')?.value || 'demo-key';
+    const endpoint = document.getElementById('endpoint-select').value;
+
+    btn.disabled = true;
+    btn.setAttribute('aria-disabled', 'true');
+    output.innerHTML = '<div class="response-loading label">Sending<span class="dots">…</span></div>';
+
+    try {
+      const r = await fetch('http://localhost:8000' + endpoint, {
+        headers: { 'X-API-Key': apiKey }
+      });
+      const body = await r.json();
+      const rl = {
+        limit:     r.headers.get('x-ratelimit-limit'),
+        remaining: r.headers.get('x-ratelimit-remaining'),
+        reset:     r.headers.get('x-ratelimit-reset'),
+        retry:     r.headers.get('retry-after'),
+      };
+
+      const statusClass = r.ok ? 'status-ok' : r.status === 429 ? 'status-429' : 'status-err';
+
+      output.innerHTML = `
+        <div class="response-block">
+          <div class="response-status ${statusClass}">
+            <span class="fig status-code">${r.status}</span>
+            <span class="label">${r.statusText || (r.ok ? 'OK' : r.status === 429 ? 'Too Many Requests' : 'Error')}</span>
+          </div>
+          <div class="response-headers">
+            <h4>Rate-limit headers</h4>
+            <dl class="header-list">
+              ${rl.limit     ? `<div class="hrow"><dt class="label">X-RateLimit-Limit</dt><dd class="fig">${rl.limit}</dd></div>` : ''}
+              ${rl.remaining ? `<div class="hrow"><dt class="label">X-RateLimit-Remaining</dt><dd class="fig">${rl.remaining}</dd></div>` : ''}
+              ${rl.reset     ? `<div class="hrow"><dt class="label">X-RateLimit-Reset</dt><dd class="fig">${rl.reset}</dd></div>` : ''}
+              ${rl.retry     ? `<div class="hrow"><dt class="label">Retry-After</dt><dd class="fig">${rl.retry} s</dd></div>` : ''}
+            </dl>
+          </div>
+          <div class="response-body">
+            <h4>Body</h4>
+            <pre class="fig code-pre">${JSON.stringify(body, null, 2)}</pre>
+          </div>
+        </div>
+      `;
+
+      /* update hero remaining for the used key */
+      if (rl.remaining) {
+        const remMap = { 'demo-key': 'rem-free', 'pro-key': 'rem-pro', 'enterprise-key': 'rem-ent' };
+        const remEl = document.getElementById(remMap[apiKey]);
+        if (remEl) remEl.textContent = rl.remaining;
+      }
+    } catch(e) {
+      output.innerHTML = `<div class="response-block"><p class="label response-err">Could not reach <code>localhost:8000</code>. Make sure Docker is running.</p></div>`;
+    } finally {
+      btn.disabled = false;
+      btn.removeAttribute('aria-disabled');
+    }
+  }
+
+  /* ── Poll remaining for all keys on load ── */
+  async function pollRemaining() {
+    const keys = [
+      { key: 'demo-key',        id: 'rem-free' },
+      { key: 'pro-key',         id: 'rem-pro'  },
+      { key: 'enterprise-key',  id: 'rem-ent'  },
+    ];
+    for (const { key, id } of keys) {
+      try {
+        const r = await fetch('http://localhost:8000/api/data', { headers: { 'X-API-Key': key } });
+        const rem = r.headers.get('x-ratelimit-remaining');
+        if (rem) {
+          const el = document.getElementById(id);
+          if (el) el.textContent = rem;
+        }
+      } catch(_) {}
+    }
+  }
+
+  /* Only poll once; don't burn through free tier */
+  document.addEventListener('DOMContentLoaded', () => {
+    pollRemaining();
+  });
+
+  /* ── Reveal on scroll ── */
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in-view');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.step-item').forEach((el, i) => {
+      el.style.setProperty('--i', i);
+      observer.observe(el);
+    });
+  } else {
+    document.querySelectorAll('.step-item').forEach(el => el.classList.add('in-view'));
+  }
+</script>
+
+<script>
+/* hallmarkSlots — swap in user's own images without layout change */
+function hallmarkSlots(map) {
+  Object.entries(map).forEach(([name, src]) => {
+    document.querySelectorAll(`[data-slot="${name}"]`).forEach(el => {
+      const img = el.tagName === 'IMG' ? el : el.querySelector('img');
+      if (img) img.src = src;
+      else { const i = document.createElement('img'); i.src = src; i.alt = el.dataset.alt || ''; el.appendChild(i); }
+    });
+  });
+}
+</script>
+
+</body>
+</html>
