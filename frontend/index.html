@@ -30,7 +30,7 @@
       <a href="#try-it">Try it</a>
       <a href="#test-suite">Test Lab</a>
       <a href="#analytics">Analytics</a>
-      <a href="http://localhost:8000/docs" target="_blank" rel="noopener">Docs</a>
+      <a href="/docs" target="_blank" rel="noopener">Docs</a>
     </nav>
     <a href="#get-key" class="btn btn--ink nav-cta">Get API key</a>
   </div>
@@ -47,7 +47,7 @@
       <p class="lead">Fixed-window and token-bucket algorithms enforced atomically in Redis. One key per account, three tiers, zero configuration drift.</p>
       <div class="hero-actions">
         <a href="#get-key" class="btn btn--ink">Get API key</a>
-        <a href="http://localhost:8000/docs" class="btn btn--card" target="_blank" rel="noopener">Open Swagger</a>
+        <a href="/docs" class="btn btn--card" target="_blank" rel="noopener">Open Swagger</a>
       </div>
       <p class="hero-sub">Free tier starts at 5 requests per minute.</p>
     </div>
@@ -259,7 +259,7 @@
           <!-- API Base URL -->
           <div class="field-group">
             <label for="api-url-input" class="label">Backend API URL</label>
-            <input type="url" id="api-url-input" class="input" placeholder="http://localhost:8000" value="http://localhost:8000">
+            <input type="url" id="api-url-input" class="input" placeholder="Auto-detected origin" value="">
           </div>
 
           <!-- Endpoint -->
@@ -570,9 +570,9 @@
     <div class="close-action">
       <div class="code-block stock">
         <code class="fig code-line">curl -H "X-API-Key: demo-key" \</code>
-        <code class="fig code-line">     http://localhost:8000/api/data</code>
+        <code class="fig code-line" id="curl-demo-line">     /api/data</code>
       </div>
-      <a href="http://localhost:8000/docs" class="btn btn--card" target="_blank" rel="noopener">Open full docs</a>
+      <a href="/docs" class="btn btn--card" target="_blank" rel="noopener">Open full docs</a>
     </div>
   </div>
 </section>
@@ -591,8 +591,8 @@
       <span>Traffic Control</span>
     </div>
     <nav class="footer-nav" aria-label="Footer">
-      <a href="http://localhost:8000/docs" target="_blank" rel="noopener">Swagger UI</a>
-      <a href="http://localhost:8000/health">Health</a>
+      <a href="/docs" target="_blank" rel="noopener">Swagger UI</a>
+      <a href="/health" target="_blank" rel="noopener">Health</a>
       <a href="#plans">Plans</a>
       <a href="#try-it">Try it</a>
       <a href="#test-suite">Test Lab</a>
@@ -607,11 +607,15 @@
   function getApiBase() {
     const input = document.getElementById('api-url-input');
     const val = input ? input.value.trim() : '';
-    if (val) return val.replace(/\/+$/, '');
-    if (typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol.startsWith('http')) {
+    const isLive = typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol.startsWith('http') && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+
+    if (isLive) {
+      if (val && !val.includes('localhost:8000')) {
+        return val.replace(/\/+$/, '');
+      }
       return window.location.origin;
     }
-    return 'http://localhost:8000';
+    return (val || 'http://localhost:8000').replace(/\/+$/, '');
   }
 
   /* ── Copy key ── */
@@ -680,7 +684,8 @@
         if (remEl) remEl.textContent = rl.remaining;
       }
     } catch(e) {
-      output.innerHTML = `<div class="response-block"><p class="label response-err">Could not reach <code>localhost:8000</code>. Make sure Docker is running.</p></div>`;
+      const target = getApiBase();
+      output.innerHTML = `<div class="response-block"><p class="label response-err">Could not reach <code>${target}</code>. Make sure the backend service is running.</p></div>`;
     } finally {
       btn.disabled = false;
       btn.removeAttribute('aria-disabled');
@@ -707,14 +712,28 @@
     }
   }
 
-  /* Read ?api= from URL if present */
+  /* Read ?api= from URL if present, or auto-fill current origin */
   document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('api-url-input');
+    const isLive = typeof window !== 'undefined' && window.location && window.location.protocol.startsWith('http') && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
     const params = new URLSearchParams(window.location.search);
     const apiParam = params.get('api');
-    if (apiParam) {
-      const input = document.getElementById('api-url-input');
-      if (input) input.value = apiParam;
+
+    if (input) {
+      if (apiParam) {
+        input.value = apiParam;
+      } else if (isLive) {
+        input.value = window.location.origin;
+      } else {
+        input.value = 'http://localhost:8000';
+      }
     }
+
+    const curlLine = document.getElementById('curl-demo-line');
+    if (curlLine && isLive) {
+      curlLine.textContent = '     ' + window.location.origin + '/api/data';
+    }
+
     pollRemaining();
   });
 
