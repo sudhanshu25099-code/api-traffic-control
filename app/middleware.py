@@ -9,8 +9,9 @@ from app.database import SessionLocal
 from app.models import Rule
 from app.redis_client import evalsha
 
-# Only these path prefixes are rate-limited. Docs, admin, health are open.
+# Only these path prefixes are rate-limited. Docs, admin, health, analytics are open.
 PROTECTED_PREFIXES = ("/api/",)
+EXCLUDED_PREFIXES = ("/api/analytics",)
 
 
 class RateLimitMiddleware:
@@ -25,7 +26,11 @@ class RateLimitMiddleware:
             return
 
         path = scope.get("path", "")
-        if scope.get("method") == "OPTIONS" or not any(path.startswith(p) for p in PROTECTED_PREFIXES):
+        if (
+            scope.get("method") == "OPTIONS"
+            or not any(path.startswith(p) for p in PROTECTED_PREFIXES)
+            or any(path.startswith(e) for e in EXCLUDED_PREFIXES)
+        ):
             await self.app(scope, receive, send)
             return
 

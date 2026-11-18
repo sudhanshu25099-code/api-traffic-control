@@ -8,7 +8,7 @@ from app.database import engine
 from app.middleware import RateLimitMiddleware
 from app.redis_client import close as redis_close
 from app.redis_client import connect as redis_connect
-from app.routers import admin, dummy_api
+from app.routers import admin, analytics, dummy_api
 
 
 @asynccontextmanager
@@ -35,6 +35,7 @@ app.add_middleware(
 
 app.include_router(dummy_api.router)
 app.include_router(admin.router)
+app.include_router(analytics.router)
 
 
 @app.get("/health", tags=["meta"])

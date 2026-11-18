@@ -6,9 +6,10 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: traffic
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d traffic"]
       interval: 3s
@@ -37,9 +38,22 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - LOG_LEVEL=info
     volumes:
-      - ./app:/app/app
+      - ./app:/app/app        # hot-reload: Python source
+      - ./sql:/app/sql        # schema / seed files
+      - ./tests:/app/tests    # tests
+      - ./docs:/app/docs      # benchmark sweeps / reports
     ports:
       - "8000:8000"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app/app"]
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "5173:80"
+    depends_on:
+      - app
 
 volumes:
   pgdata:

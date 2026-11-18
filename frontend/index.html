@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="base.css">
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -28,6 +29,7 @@
       <a href="#plans">Plans</a>
       <a href="#try-it">Try it</a>
       <a href="#test-suite">Test Lab</a>
+      <a href="#analytics">Analytics</a>
       <a href="http://localhost:8000/docs" target="_blank" rel="noopener">Docs</a>
     </nav>
     <a href="#get-key" class="btn btn--ink nav-cta">Get API key</a>
@@ -368,6 +370,193 @@
       </article>
 
     </div>
+
+    <!-- ══ TEST RUN MONITOR ══ -->
+    <div class="test-graph-panel stock" id="test-graph-panel" style="margin-top: var(--space-xl); padding: var(--space-lg); border: 1px solid var(--color-rule); border-radius: var(--radius-stock); background: var(--color-cotton);">
+      <div class="test-graph-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-md);">
+        <div>
+          <h3 class="test-graph-title" style="font-size: 1.0625rem; font-weight: 600; margin: 0 0 4px; color: var(--color-ink);">Live Test Run Monitor</h3>
+          <p class="test-graph-desc label" style="color: var(--color-muted); margin: 0;">Request outcomes and remaining quota recorded in real time as test cases execute.</p>
+        </div>
+        <button type="button" class="btn btn--card btn--sm" id="clear-graph-btn" onclick="clearTestGraph()">Clear</button>
+      </div>
+      <div class="test-graph-charts" id="test-graph-charts" style="display:none; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+        <div class="test-graph-chart-wrap" style="background: var(--color-paper); border: 1px solid var(--color-rule); border-radius: 6px; padding: var(--space-sm); min-height: 200px;">
+          <p class="label test-graph-chart-label" style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-muted); margin: 0 0 var(--space-xs);">Status Codes per Request</p>
+          <div style="height: 160px; position: relative;">
+            <canvas id="chart-status" role="img" aria-label="HTTP status codes per request"></canvas>
+          </div>
+        </div>
+        <div class="test-graph-chart-wrap" style="background: var(--color-paper); border: 1px solid var(--color-rule); border-radius: 6px; padding: var(--space-sm); min-height: 200px;">
+          <p class="label test-graph-chart-label" style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-muted); margin: 0 0 var(--space-xs);">Remaining Quota</p>
+          <div style="height: 160px; position: relative;">
+            <canvas id="chart-remaining" role="img" aria-label="Remaining quota over requests"></canvas>
+          </div>
+        </div>
+      </div>
+      <p class="test-graph-empty label" id="graph-empty-msg" style="text-align: center; color: var(--color-muted); padding: var(--space-lg) 0; margin: 0;">Execute any test card above to visualize response codes and quota dynamics.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══ ANALYTICS & COMPLEXITY DASHBOARD ══ -->
+<section class="section-analytics" id="analytics" aria-label="Analytics and Algorithmic Complexity">
+  <div class="container">
+
+    <div class="analytics-header-wrap">
+      <div class="analytics-header-text">
+        <h2>Empirical Performance & Algorithmic Complexity</h2>
+        <p class="lead">Throughput, latency, and race condition isolation across concurrency sweeps (N = 10 to 2,000 users) combined with theoretical comparative analysis of five foundational algorithms grounded in Saleem (2026).</p>
+      </div>
+      <div class="analytics-status-bar" id="analytics-status-bar">
+        <span class="analytics-status-dot dot-live" id="analytics-status-dot"></span>
+        <span class="analytics-status-text" id="analytics-status-text">Connecting to Analytics API...</span>
+        <button type="button" class="btn btn--card btn--sm" onclick="loadAnalyticsData()" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Reload</button>
+      </div>
+    </div>
+
+    <!-- 2x2 Empirical Benchmark Charts -->
+    <div class="analytics-grid">
+
+      <!-- Chart 1: System Throughput vs. Concurrent Users -->
+      <article class="analytics-card stock">
+        <div class="analytics-card-header">
+          <div>
+            <h3 class="analytics-card-title">Throughput vs. Concurrent Users</h3>
+            <p class="analytics-card-subtitle">Sustained request rate (req/s) across concurrency sweep N = 10 to 2,000.</p>
+          </div>
+          <span class="analytics-card-badge">N = 10 .. 2,000</span>
+        </div>
+        <div class="analytics-chart-container">
+          <canvas id="chart-throughput" role="img" aria-label="System throughput vs concurrent users"></canvas>
+        </div>
+        <div class="littles-law-card stock">
+          <div class="littles-law-header">
+            <span class="littles-law-tag">Little's Law Analysis</span>
+            <span class="littles-law-formula">L = &lambda; &middot; W</span>
+          </div>
+          <p>Redis Lua throughput remains flat (~519 req/s at N=2,000) because algorithmic evaluation is strictly O(1). Latency increases are solely due to single-container ASGI socket queueing (W grows with L at saturated capacity). In contrast, PostgreSQL row-level locks collapse to 12.8 req/s under thread contention.</p>
+        </div>
+      </article>
+
+      <!-- Chart 2: p95 Latency vs. Concurrent Users (Log Scale) -->
+      <article class="analytics-card stock">
+        <div class="analytics-card-header">
+          <div>
+            <h3 class="analytics-card-title">p95 Latency vs. Concurrency (Log Scale)</h3>
+            <p class="analytics-card-subtitle">Logarithmic explosion of database row locks versus sub-millisecond Redis Lua.</p>
+          </div>
+          <span class="analytics-card-badge">Semi-Log Scale</span>
+        </div>
+        <div class="analytics-chart-container">
+          <canvas id="chart-latency" role="img" aria-label="p95 latency log scale vs concurrent users"></canvas>
+        </div>
+        <div class="littles-law-card stock">
+          <div class="littles-law-header">
+            <span class="littles-law-tag">Lock Contention Horizon</span>
+            <span class="littles-law-formula">SELECT ... FOR UPDATE</span>
+          </div>
+          <p>At 2,000 concurrent users, PostgreSQL row-level locks trigger cascading thread serialization, driving p95 latency to 140,000 ms (2.3 minutes). Atomic Redis Lua maintains sub-millisecond algorithm times and avoids database thread blocking entirely.</p>
+        </div>
+      </article>
+
+      <!-- Chart 3: Concurrency Race Condition Failure vs. Atomic Isolation -->
+      <article class="analytics-card stock">
+        <div class="analytics-card-header">
+          <div>
+            <h3 class="analytics-card-title">Race Condition Leak vs. Atomic Compliance</h3>
+            <p class="analytics-card-subtitle">Admitted vs. Rejected requests across concurrency bursts (Configured Limit = 10).</p>
+          </div>
+          <span class="analytics-card-badge">Limit = 10</span>
+        </div>
+        <div class="analytics-chart-container">
+          <canvas id="chart-race" role="img" aria-label="Race condition failure vs atomic isolation"></canvas>
+        </div>
+        <div class="littles-law-card stock">
+          <div class="littles-law-header">
+            <span class="littles-law-tag">Atomicity Proof</span>
+            <span class="littles-law-formula">EVALSHA Atomicity</span>
+          </div>
+          <p>Under 1,000 simultaneous coroutines, standard in-process memory suffers read-modify-write race conditions, admitting 100% of requests (a 100x quota breach). Redis single-threaded Lua scripts enforce 100% compliance with zero unauthorized throughput leakage.</p>
+        </div>
+      </article>
+
+      <!-- Chart 4: Algorithmic Memory & Poisson Burst Tolerance -->
+      <article class="analytics-card stock">
+        <div class="analytics-card-header">
+          <div>
+            <h3 class="analytics-card-title" id="chart4-title">Spatial Memory Overhead per Tenant</h3>
+            <p class="analytics-card-subtitle" id="chart4-subtitle">Storage bytes required per client key (Saleem 2026 Table 1).</p>
+          </div>
+          <div class="chart-view-toggle">
+            <button type="button" class="chart-toggle-btn active" id="btn-view-memory" onclick="switchChart4View('memory')">Memory (Bytes)</button>
+            <button type="button" class="chart-toggle-btn" id="btn-view-burst" onclick="switchChart4View('burst')">Burst Acceptance (%)</button>
+          </div>
+        </div>
+        <div class="analytics-chart-container">
+          <canvas id="chart-complexity-comparison" role="img" aria-label="Algorithm complexity comparison"></canvas>
+        </div>
+        <div class="littles-law-card stock">
+          <div class="littles-law-header">
+            <span class="littles-law-tag">Empirical Trace Grounding</span>
+            <span class="littles-law-formula">Saleem (2026)</span>
+          </div>
+          <p id="chart4-note">Token Bucket provides the optimal trade-off: O(1) space footprint (112 Bytes) with the highest empirical burst accommodation (79.8% accepted) over synthetic Poisson traffic traces (1,057 requests).</p>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Algorithmic Complexity Matrix Table Section -->
+    <div class="complexity-section-wrap">
+      <div class="complexity-meta-lead">
+        <div>
+          <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--color-ink); margin: 0 0 4px;">Algorithmic Comparison Matrix (Saleem 2026, Table 1 &amp; 2)</h3>
+          <p class="lead" style="font-size: var(--text-sm); margin: 0; color: var(--color-muted);">Click any algorithm row to inspect its architectural trade-offs and mathematical characteristics.</p>
+        </div>
+        <span class="analytics-card-badge">Dual Traffic Spikes: 40 &amp; 60 req/s</span>
+      </div>
+
+      <div class="complexity-table-wrap">
+        <table class="complexity-table" aria-label="Comparative Algorithmic Complexity Matrix">
+          <thead>
+            <tr>
+              <th scope="col">Algorithm</th>
+              <th scope="col">Time Complexity</th>
+              <th scope="col">Memory / Key</th>
+              <th scope="col">Burst Profile</th>
+              <th scope="col">Timing Precision</th>
+              <th scope="col">Poisson Acceptance (1,057 Trace)</th>
+              <th scope="col">Distributed Substrate</th>
+            </tr>
+          </thead>
+          <tbody id="complexity-table-body">
+            <!-- Dynamically populated or rendered via JS with fallback -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Selected Algorithm Deep-Dive Drawer -->
+      <div class="algo-deep-dive stock" id="algo-deep-dive">
+        <div class="algo-deep-dive-grid">
+          <div>
+            <h4 class="deep-dive-title" id="dive-title">Token Bucket (Continuous Credit)</h4>
+            <p class="deep-dive-text" id="dive-desc">Permits bursts up to bucket capacity while guaranteeing continuous mathematical replenishment. Achieved 79.8% acceptance across synthetic Poisson traces, absorbing bursts of 69/194 and 38/125 requests.</p>
+          </div>
+          <div>
+            <div class="deep-dive-meta" id="dive-meta">
+              <strong>Space per Key:</strong> 112 Bytes (O(1))<br>
+              <strong>Timing Precision:</strong> High (Continuous fractional refill)<br>
+              <strong>Distributed Execution:</strong> Redis Lua Script (Atomic GET + SET)<br>
+              <strong>Academic Reference:</strong> Saleem (2026), Research Square DOI: 10.21203/rs.3.rs-10948293/v1
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -407,6 +596,7 @@
       <a href="#plans">Plans</a>
       <a href="#try-it">Try it</a>
       <a href="#test-suite">Test Lab</a>
+      <a href="#analytics">Analytics</a>
     </nav>
     <p class="footer-legal label">API Traffic Control · FastAPI + Redis + Postgres · Built with Hallmark</p>
   </div>
@@ -565,6 +755,7 @@
         const rem = r.headers.get('x-ratelimit-remaining');
         const retry = r.headers.get('retry-after');
 
+        recordGraphPoint(r.status, rem, `Boundary #${i}`);
         if (r.status === 200) {
           successCount++;
           appendTestLog(testId, `[${i}/6] HTTP 200 OK (${dt}ms) -> Remaining: ${rem}`);
@@ -607,6 +798,7 @@
       const body = await r.json().catch(() => ({}));
 
       appendTestLog(testId, `Status received: HTTP ${r.status}`);
+      recordGraphPoint(r.status, null, 'Auth Check');
       appendTestLog(testId, `Response body: ${JSON.stringify(body)}`);
 
       if (r.status === 401) {
@@ -641,6 +833,7 @@
       const reset = r.headers.get('x-ratelimit-reset');
 
       appendTestLog(testId, `Status: HTTP ${r.status}`);
+      recordGraphPoint(r.status, rem, 'Headers Check');
       appendTestLog(testId, `x-ratelimit-limit:     ${limit ?? '(missing)'}`);
       appendTestLog(testId, `x-ratelimit-remaining: ${rem ?? '(missing)'}`);
       appendTestLog(testId, `x-ratelimit-reset:     ${reset ?? '(missing)'}`);
@@ -686,6 +879,7 @@
         if (res.status === 200) count200++;
         else if (res.status === 429) count429++;
         appendTestLog(testId, `Req #${res.idx}: HTTP ${res.status} [Remaining: ${res.rem ?? '-'}]`);
+        recordGraphPoint(res.status, res.rem, `Conc #${res.idx}`);
       });
 
       appendTestLog(testId, `\nBatch completed in ${dt}ms: ${count200} allowed, ${count429} rejected.`);
@@ -752,6 +946,789 @@ function hallmarkSlots(map) {
     });
   });
 }
+</script>
+
+
+<script>
+/* ──────────────────────────────────────────────────────────
+   LIVE TEST RUN MONITOR
+   ────────────────────────────────────────────────────────── */
+const graphData = {
+  labels: [],
+  statuses: [],
+  remaining: []
+};
+
+let chartStatusInstance = null;
+let chartRemainingInstance = null;
+
+function initTestMonitorCharts() {
+  const canvasStatus = document.getElementById('chart-status');
+  const canvasRemaining = document.getElementById('chart-remaining');
+  if (!canvasStatus || !canvasRemaining || chartStatusInstance) return;
+
+  const ctxS = canvasStatus.getContext('2d');
+  chartStatusInstance = new Chart(ctxS, {
+    type: 'bar',
+    data: {
+      labels: graphData.labels,
+      datasets: [
+        {
+          label: '200 OK',
+          data: [],
+          backgroundColor: 'oklch(55% 0.17 145)',
+          borderRadius: 3,
+          stack: 'status'
+        },
+        {
+          label: '429 Too Many',
+          data: [],
+          backgroundColor: 'oklch(54% 0.165 29)',
+          borderRadius: 3,
+          stack: 'status'
+        },
+        {
+          label: '401 Unauthorized',
+          data: [],
+          backgroundColor: 'oklch(45% 0.18 25)',
+          borderRadius: 3,
+          stack: 'status'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 250 },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Geist Mono, monospace', size: 10 } } },
+        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Geist Mono, monospace', size: 10 } } }
+      },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 10, font: { family: 'General Sans, sans-serif', size: 11 } } }
+      }
+    }
+  });
+
+  const ctxR = canvasRemaining.getContext('2d');
+  chartRemainingInstance = new Chart(ctxR, {
+    type: 'line',
+    data: {
+      labels: graphData.labels,
+      datasets: [
+        {
+          label: 'Remaining Quota',
+          data: [],
+          borderColor: 'oklch(54% 0.165 29)',
+          backgroundColor: 'oklch(54% 0.165 29 / 0.12)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.25,
+          pointRadius: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 250 },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Geist Mono, monospace', size: 10 } } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Geist Mono, monospace', size: 10 } } }
+      },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 10, font: { family: 'General Sans, sans-serif', size: 11 } } }
+      }
+    }
+  });
+}
+
+function updateTestMonitorCharts() {
+  if (!chartStatusInstance || !chartRemainingInstance) return;
+
+  const labels = graphData.labels;
+  const ok200  = graphData.statuses.map(s => s === 200 ? 1 : 0);
+  const r429   = graphData.statuses.map(s => s === 429 ? 1 : 0);
+  const r401   = graphData.statuses.map(s => s === 401 ? 1 : 0);
+  const remArr = graphData.remaining;
+
+  chartStatusInstance.data.labels = labels;
+  chartStatusInstance.data.datasets[0].data = ok200;
+  chartStatusInstance.data.datasets[1].data = r429;
+  chartStatusInstance.data.datasets[2].data = r401;
+  chartStatusInstance.update();
+
+  chartRemainingInstance.data.labels = labels;
+  chartRemainingInstance.data.datasets[0].data = remArr;
+  chartRemainingInstance.update();
+}
+
+function recordGraphPoint(status, remaining, label) {
+  const count = graphData.labels.length + 1;
+  graphData.labels.push(label || `Req ${count}`);
+  graphData.statuses.push(status || 0);
+  graphData.remaining.push(remaining !== null && remaining !== undefined ? parseInt(remaining, 10) : null);
+
+  const chartsEl = document.getElementById('test-graph-charts');
+  const emptyEl  = document.getElementById('graph-empty-msg');
+  if (chartsEl) chartsEl.style.display = 'grid';
+  if (emptyEl)  emptyEl.style.display  = 'none';
+
+  initTestMonitorCharts();
+  updateTestMonitorCharts();
+}
+
+function clearTestGraph() {
+  graphData.labels    = [];
+  graphData.statuses  = [];
+  graphData.remaining = [];
+
+  if (chartStatusInstance) {
+    chartStatusInstance.data.labels = [];
+    chartStatusInstance.data.datasets.forEach(d => d.data = []);
+    chartStatusInstance.update();
+  }
+  if (chartRemainingInstance) {
+    chartRemainingInstance.data.labels = [];
+    chartRemainingInstance.data.datasets[0].data = [];
+    chartRemainingInstance.update();
+  }
+
+  const chartsEl = document.getElementById('test-graph-charts');
+  const emptyEl  = document.getElementById('graph-empty-msg');
+  if (chartsEl) chartsEl.style.display = 'none';
+  if (emptyEl)  emptyEl.style.display  = '';
+}
+
+/* ──────────────────────────────────────────────────────────
+   ANALYTICS & ALGORITHMIC COMPLEXITY DASHBOARD
+   ────────────────────────────────────────────────────────── */
+const STATIC_BENCHMARKS = {
+  user_points: [10, 50, 100, 250, 500, 1000, 2000],
+  series: {
+    fixed_window: {
+      name: "Fixed Window (Redis Lua)",
+      throughput: [612.4, 588.6, 572.1, 561.0, 552.3, 544.2, 518.7],
+      p95: [28.4, 142.0, 310.2, 890.5, 1850.4, 3700.0, 7900.0]
+    },
+    token_bucket: {
+      name: "Token Bucket (Redis Lua)",
+      throughput: [598.2, 576.4, 558.0, 549.5, 538.1, 529.1, 504.6],
+      p95: [30.2, 149.5, 328.0, 925.0, 1920.0, 3900.0, 8250.0]
+    },
+    postgres_row_lock: {
+      name: "PostgreSQL Row-Lock (FOR UPDATE)",
+      throughput: [210.5, 142.1, 98.4, 54.2, 38.6, 24.1, 12.8],
+      p95: [92.5, 850.0, 2400.0, 9800.0, 26000.0, 72000.0, 140000.0]
+    },
+    in_process: {
+      name: "In-Process Python Dict",
+      throughput: [1850.0, 1790.0, 1740.0, 1680.0, 1610.0, 1520.0, 1410.0],
+      p95: [11.2, 54.0, 115.0, 310.0, 680.0, 1450.0, 3200.0]
+    }
+  },
+  race_conditions: {
+    configured_limit: 10,
+    concurrency_labels: ["20 (Unit Test)", "20 (Batch)", "100 (Burst)", "1000 (Spike)"],
+    concurrency_sizes: [20, 20, 100, 1000],
+    in_process_admitted: [16, 20, 100, 1000],
+    redis_lua_admitted: [10, 10, 10, 10]
+  }
+};
+
+const STATIC_COMPLEXITY = {
+  algorithms: [
+    {
+      id: "token_bucket",
+      name: "Token Bucket",
+      family: "Continuous Credit",
+      time_complexity: { best: "Omega(1)", average: "Theta(1)", worst: "O(1)" },
+      space_per_tenant_bytes: 112,
+      space_complexity: "O(1)",
+      burst_handling: "Permits configurable bursts up to capacity C without boundary exploits",
+      timing_precision: "High (Continuous fractional refill)",
+      distributed_substrate: "Redis Lua (GET + SET)",
+      poisson_simulation: {
+        accepted_requests: 844,
+        acceptance_rate_pct: 79.8,
+        burst_1_admitted: "69/194 accepted",
+        burst_2_admitted: "38/125 accepted"
+      },
+      detailed_notes: "Token Bucket decouples instantaneous burst size from sustained refill rate. In Saleem (2026), it admitted 844/1,057 requests (79.8%), accommodating both traffic storms (69 and 38 requests) via accumulated token credits while strictly bounding long-term capacity."
+    },
+    {
+      id: "leaky_bucket",
+      name: "Leaky Bucket",
+      family: "Traffic Shaper / Meter",
+      time_complexity: { best: "Omega(1)", average: "Theta(1)", worst: "O(1)" },
+      space_per_tenant_bytes: 112,
+      space_complexity: "O(1)",
+      burst_handling: "Smooths bursty arrivals to constant output rate; rejects overflow",
+      timing_precision: "High (Continuous meter-equivalent)",
+      distributed_substrate: "Redis Lua (Mathematical dual of Token Bucket)",
+      poisson_simulation: {
+        accepted_requests: 844,
+        acceptance_rate_pct: 79.8,
+        burst_1_admitted: "69/194 accepted",
+        burst_2_admitted: "38/125 accepted"
+      },
+      detailed_notes: "Leaky Bucket is mathematically dual to Token Bucket when used as a pure admission guard. It meters traffic output at a uniform rate, making it ideal for protecting sensitive downstream services from sudden surges."
+    },
+    {
+      id: "fixed_window",
+      name: "Fixed Window Counter",
+      family: "Epoch Counter",
+      time_complexity: { best: "Omega(1)", average: "Theta(1)", worst: "O(1)" },
+      space_per_tenant_bytes: 56,
+      space_complexity: "O(1)",
+      burst_handling: "Permits boundary bursts up to 2x quota when requests straddle window boundary",
+      timing_precision: "Low at window boundaries",
+      distributed_substrate: "Redis Lua (INCR + EXPIRE)",
+      poisson_simulation: {
+        accepted_requests: 775,
+        acceptance_rate_pct: 73.3,
+        burst_1_admitted: "50/194 accepted",
+        burst_2_admitted: "20/125 accepted"
+      },
+      detailed_notes: "Fixed Window is the most computationally minimal algorithm (56 Bytes per tenant, single INCR). However, clients can send full quota at t=59s and another at t=61s, allowing up to 2x quota across the boundary window."
+    },
+    {
+      id: "sliding_window_counter",
+      name: "Sliding Window Counter",
+      family: "Interpolated Counter",
+      time_complexity: { best: "Omega(1)", average: "Theta(1)", worst: "O(1)" },
+      space_per_tenant_bytes: 128,
+      space_complexity: "O(1)",
+      burst_handling: "Weighted approximation of trailing window; eliminates boundary cliff",
+      timing_precision: "High (Approximated 73-99% accuracy)",
+      distributed_substrate: "Redis Lua / Hash",
+      poisson_simulation: {
+        accepted_requests: 751,
+        acceptance_rate_pct: 71.1,
+        burst_1_admitted: "50/194 accepted",
+        burst_2_admitted: "19/125 accepted"
+      },
+      detailed_notes: "Interpolates between previous and current window counts using timestamp weighting. Prevents the 2x boundary burst of fixed window with negligible memory overhead (~128 Bytes)."
+    },
+    {
+      id: "sliding_window_log",
+      name: "Sliding Window Log",
+      family: "Timestamp Ledger",
+      time_complexity: { best: "Omega(log n)", average: "Theta(log n + m)", worst: "O(n)" },
+      space_per_tenant_bytes: 97000,
+      space_complexity: "O(n)",
+      burst_handling: "Strict ceiling; zero boundary burst allowance; perfectly accurate",
+      timing_precision: "Exact / Absolute",
+      distributed_substrate: "Redis Sorted Set (ZSET)",
+      poisson_simulation: {
+        accepted_requests: 718,
+        acceptance_rate_pct: 67.9,
+        burst_1_admitted: "50/194 accepted",
+        burst_2_admitted: "20/125 accepted"
+      },
+      detailed_notes: "Maintains a full timestamp ledger per request. While completely boundary-proof, memory scales as O(n) (97 KB at n=1,000 requests), introducing severe memory exhaustion vulnerability during high-volume spikes or DDoS attacks."
+    }
+  ]
+};
+
+let chartThroughputInstance = null;
+let chartLatencyInstance = null;
+let chartRaceInstance = null;
+let chartComplexityInstance = null;
+let currentChart4View = 'memory';
+let currentComplexityData = STATIC_COMPLEXITY;
+
+async function loadAnalyticsData() {
+  const dotEl = document.getElementById('analytics-status-dot');
+  const textEl = document.getElementById('analytics-status-text');
+  if (textEl) textEl.textContent = 'Fetching benchmark telemetry...';
+
+  const baseUrl = getApiBase();
+  let benchmarkData = STATIC_BENCHMARKS;
+  let complexityData = STATIC_COMPLEXITY;
+  let isLive = false;
+
+  try {
+    const resB = await fetch(baseUrl + '/api/analytics/benchmarks');
+    if (resB.ok) {
+      benchmarkData = await resB.json();
+      isLive = true;
+    }
+  } catch (err) {
+    console.warn('Analytics benchmarks API unavailable; using static telemetry.', err);
+  }
+
+  try {
+    const resC = await fetch(baseUrl + '/api/analytics/complexity');
+    if (resC.ok) {
+      complexityData = await resC.json();
+      isLive = true;
+    }
+  } catch (err) {
+    console.warn('Analytics complexity API unavailable; using static telemetry.', err);
+  }
+
+  currentComplexityData = complexityData;
+
+  if (dotEl && textEl) {
+    if (isLive) {
+      dotEl.className = 'analytics-status-dot dot-live';
+      textEl.textContent = 'Live API Connected (' + baseUrl + ')';
+    } else {
+      dotEl.className = 'analytics-status-dot dot-fallback';
+      textEl.textContent = 'Static Benchmark Data (Offline Mode)';
+    }
+  }
+
+  renderThroughputChart(benchmarkData);
+  renderLatencyChart(benchmarkData);
+  renderRaceChart(benchmarkData);
+  renderComplexityComparisonChart(complexityData, currentChart4View);
+  renderComplexityTable(complexityData);
+}
+
+function renderThroughputChart(data) {
+  const canvas = document.getElementById('chart-throughput');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (chartThroughputInstance) chartThroughputInstance.destroy();
+
+  const labels = data.user_points || STATIC_BENCHMARKS.user_points;
+  const s = data.series || STATIC_BENCHMARKS.series;
+
+  chartThroughputInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels.map(u => `${u} users`),
+      datasets: [
+        {
+          label: 'Fixed Window (Lua)',
+          data: s.fixed_window.throughput,
+          borderColor: 'oklch(55% 0.17 145)',
+          backgroundColor: 'transparent',
+          borderWidth: 2.2,
+          pointRadius: 3,
+          tension: 0.15
+        },
+        {
+          label: 'Token Bucket (Lua)',
+          data: s.token_bucket.throughput,
+          borderColor: 'oklch(54% 0.165 29)',
+          backgroundColor: 'transparent',
+          borderWidth: 2.2,
+          pointRadius: 3,
+          tension: 0.15
+        },
+        {
+          label: 'PostgreSQL Row-Lock',
+          data: s.postgres_row_lock.throughput,
+          borderColor: 'oklch(45% 0.18 25)',
+          backgroundColor: 'transparent',
+          borderWidth: 2.2,
+          pointRadius: 3,
+          tension: 0.15
+        },
+        {
+          label: 'In-Process Python (Broken)',
+          data: s.in_process.throughput,
+          borderColor: 'oklch(50% 0.12 280)',
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderDash: [4, 4],
+          pointRadius: 2,
+          tension: 0.15
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'Geist Mono, monospace', size: 10 } } },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          title: { display: true, text: 'Throughput (req/s)', font: { family: 'General Sans, sans-serif', size: 11 } },
+          ticks: { font: { family: 'Geist Mono, monospace', size: 10 } }
+        }
+      },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'General Sans, sans-serif', size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} req/s`
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderLatencyChart(data) {
+  const canvas = document.getElementById('chart-latency');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (chartLatencyInstance) chartLatencyInstance.destroy();
+
+  const labels = data.user_points || STATIC_BENCHMARKS.user_points;
+  const s = data.series || STATIC_BENCHMARKS.series;
+
+  chartLatencyInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels.map(u => `${u} users`),
+      datasets: [
+        {
+          label: 'Fixed Window (Lua)',
+          data: s.fixed_window.p95,
+          borderColor: 'oklch(55% 0.17 145)',
+          backgroundColor: 'transparent',
+          borderWidth: 2.2,
+          pointRadius: 3,
+          tension: 0.15
+        },
+        {
+          label: 'Token Bucket (Lua)',
+          data: s.token_bucket.p95,
+          borderColor: 'oklch(54% 0.165 29)',
+          backgroundColor: 'transparent',
+          borderWidth: 2.2,
+          pointRadius: 3,
+          tension: 0.15
+        },
+        {
+          label: 'PostgreSQL Row-Lock',
+          data: s.postgres_row_lock.p95,
+          borderColor: 'oklch(45% 0.18 25)',
+          backgroundColor: 'transparent',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          tension: 0.15
+        },
+        {
+          label: 'In-Process Python (Broken)',
+          data: s.in_process.p95,
+          borderColor: 'oklch(50% 0.12 280)',
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderDash: [4, 4],
+          pointRadius: 2,
+          tension: 0.15
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'Geist Mono, monospace', size: 10 } } },
+        y: {
+          type: 'logarithmic',
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          title: { display: true, text: 'p95 Latency (ms) [Log Scale]', font: { family: 'General Sans, sans-serif', size: 11 } },
+          ticks: {
+            callback: function(value) {
+              if (value === 10 || value === 100 || value === 1000 || value === 10000 || value === 100000) {
+                return value >= 1000 ? (value / 1000) + 's' : value + 'ms';
+              }
+              return null;
+            },
+            font: { family: 'Geist Mono, monospace', size: 10 }
+          }
+        }
+      },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'General Sans, sans-serif', size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toLocaleString()} ms`
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderRaceChart(data) {
+  const canvas = document.getElementById('chart-race');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (chartRaceInstance) chartRaceInstance.destroy();
+
+  const race = data.race_conditions || STATIC_BENCHMARKS.race_conditions;
+
+  chartRaceInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: race.concurrency_labels,
+      datasets: [
+        {
+          label: 'In-Process Admitted (Leaked)',
+          data: race.in_process_admitted,
+          backgroundColor: 'oklch(50% 0.15 25)',
+          borderRadius: 3
+        },
+        {
+          label: 'Redis Lua Admitted (Atomic)',
+          data: race.redis_lua_admitted,
+          backgroundColor: 'oklch(55% 0.17 145)',
+          borderRadius: 3
+        },
+        {
+          type: 'line',
+          label: 'Configured Limit (Threshold = 10)',
+          data: race.concurrency_labels.map(() => race.configured_limit || 10),
+          borderColor: 'oklch(21% 0.012 38)',
+          borderWidth: 2,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Geist Mono, monospace', size: 10 } } },
+        y: {
+          type: 'logarithmic',
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          title: { display: true, text: 'Admitted Requests (Log Scale)', font: { family: 'General Sans, sans-serif', size: 11 } },
+          ticks: {
+            callback: function(val) {
+              if (val === 1 || val === 10 || val === 100 || val === 1000) return val;
+              return null;
+            },
+            font: { family: 'Geist Mono, monospace', size: 10 }
+          }
+        }
+      },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'General Sans, sans-serif', size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} requests`
+          }
+        }
+      }
+    }
+  });
+}
+
+function switchChart4View(view) {
+  currentChart4View = view;
+  const btnM = document.getElementById('btn-view-memory');
+  const btnB = document.getElementById('btn-view-burst');
+  const titleEl = document.getElementById('chart4-title');
+  const subEl = document.getElementById('chart4-subtitle');
+  const noteEl = document.getElementById('chart4-note');
+
+  if (view === 'memory') {
+    if (btnM) btnM.className = 'chart-toggle-btn active';
+    if (btnB) btnB.className = 'chart-toggle-btn';
+    if (titleEl) titleEl.textContent = 'Spatial Memory Overhead per Tenant';
+    if (subEl) subEl.textContent = 'Storage bytes required per client key (Saleem 2026 Table 1).';
+    if (noteEl) noteEl.textContent = 'Sliding Window Log requires unbounded O(n) memory (97 KB for n=1,000 requests), whereas Token Bucket and Fixed Window remain strictly O(1) (56-112 Bytes).';
+  } else {
+    if (btnM) btnM.className = 'chart-toggle-btn';
+    if (btnB) btnB.className = 'chart-toggle-btn active';
+    if (titleEl) titleEl.textContent = 'Traffic Storm Burst Acceptance Rate';
+    if (subEl) subEl.textContent = 'Percentage of 1,057 Poisson requests admitted across synthetic spikes (Saleem 2026 Table 2).';
+    if (noteEl) noteEl.textContent = 'Token Bucket and Leaky Bucket achieved the highest acceptance rate (79.8%), absorbing bursts of 69/194 and 38/125 requests by leveraging accumulated capacity.';
+  }
+
+  renderComplexityComparisonChart(currentComplexityData, view);
+}
+
+function renderComplexityComparisonChart(data, view) {
+  const canvas = document.getElementById('chart-complexity-comparison');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (chartComplexityInstance) chartComplexityInstance.destroy();
+
+  const algos = data.algorithms || STATIC_COMPLEXITY.algorithms;
+  const names = algos.map(a => a.name);
+
+  if (view === 'memory') {
+    const memoryBytes = algos.map(a => a.space_per_tenant_bytes);
+    chartComplexityInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: names,
+        datasets: [
+          {
+            label: 'Memory per Tenant (Bytes)',
+            data: memoryBytes,
+            backgroundColor: [
+              'oklch(54% 0.165 29)',
+              'oklch(58% 0.14 55)',
+              'oklch(55% 0.17 145)',
+              'oklch(50% 0.12 240)',
+              'oklch(45% 0.18 25)'
+            ],
+            borderRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: 'Geist Mono, monospace', size: 9 } } },
+          y: {
+            type: 'logarithmic',
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            title: { display: true, text: 'Bytes per Key [Log Scale]', font: { family: 'General Sans, sans-serif', size: 11 } },
+            ticks: {
+              callback: function(val) {
+                if (val === 10 || val === 100 || val === 1000 || val === 10000 || val === 100000) {
+                  return val >= 1000 ? (val / 1000) + ' KB' : val + ' B';
+                }
+                return null;
+              },
+              font: { family: 'Geist Mono, monospace', size: 10 }
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toLocaleString()} Bytes`
+            }
+          }
+        }
+      }
+    });
+  } else {
+    const acceptance = algos.map(a => a.poisson_simulation.acceptance_rate_pct);
+    chartComplexityInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: names,
+        datasets: [
+          {
+            label: 'Acceptance Rate (%)',
+            data: acceptance,
+            backgroundColor: 'oklch(54% 0.165 29)',
+            borderRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: 'Geist Mono, monospace', size: 9 } } },
+          y: {
+            min: 50,
+            max: 90,
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            title: { display: true, text: 'Acceptance Rate (%)', font: { family: 'General Sans, sans-serif', size: 11 } },
+            ticks: { font: { family: 'Geist Mono, monospace', size: 10 } }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}%`
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+function renderComplexityTable(data) {
+  const tbody = document.getElementById('complexity-table-body');
+  if (!tbody) return;
+
+  const algos = data.algorithms || STATIC_COMPLEXITY.algorithms;
+  tbody.innerHTML = '';
+
+  algos.forEach((algo, idx) => {
+    const tr = document.createElement('tr');
+    tr.id = 'row-' + algo.id;
+    if (idx === 0) tr.classList.add('selected-algo');
+
+    const isO1 = algo.space_complexity === 'O(1)';
+    const pillClass = isO1 ? 'complexity-pill-o1' : 'complexity-pill-on';
+    const memLabel = algo.space_per_tenant_bytes >= 1000
+      ? (algo.space_per_tenant_bytes / 1000).toFixed(0) + ' KB'
+      : algo.space_per_tenant_bytes + ' B';
+
+    tr.innerHTML = `
+      <td>
+        <span class="algo-cell-name">${algo.name}</span>
+        <span class="algo-cell-family">${algo.family}</span>
+      </td>
+      <td>
+        <span class="complexity-pill ${pillClass}">${algo.time_complexity.worst}</span>
+      </td>
+      <td>
+        <span class="memory-tag">${memLabel}</span>
+      </td>
+      <td style="max-width: 200px; line-height: 1.35; color: var(--color-ink-2); font-size: 0.8125rem;">
+        ${algo.burst_handling}
+      </td>
+      <td style="color: var(--color-muted); font-size: 0.8125rem;">
+        ${algo.timing_precision}
+      </td>
+      <td>
+        <div class="burst-stat-bar">
+          <div class="burst-progress-track">
+            <div class="burst-progress-fill" style="width: ${algo.poisson_simulation.acceptance_rate_pct}%"></div>
+          </div>
+          <span class="burst-pct-label">${algo.poisson_simulation.acceptance_rate_pct}%</span>
+        </div>
+      </td>
+      <td style="font-family: var(--font-outlier); font-size: 0.75rem; color: var(--color-ink-2);">
+        ${algo.distributed_substrate}
+      </td>
+    `;
+
+    tr.addEventListener('click', () => {
+      document.querySelectorAll('#complexity-table-body tr').forEach(r => r.classList.remove('selected-algo'));
+      tr.classList.add('selected-algo');
+      selectAlgorithmDetails(algo);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  if (algos.length > 0) {
+    selectAlgorithmDetails(algos[0]);
+  }
+}
+
+function selectAlgorithmDetails(algo) {
+  const title = document.getElementById('dive-title');
+  const desc = document.getElementById('dive-desc');
+  const meta = document.getElementById('dive-meta');
+
+  if (title) title.textContent = `${algo.name} (${algo.family})`;
+  if (desc) desc.textContent = algo.detailed_notes || algo.burst_handling;
+  if (meta) {
+    const mem = algo.space_per_tenant_bytes >= 1000
+      ? (algo.space_per_tenant_bytes / 1000).toFixed(0) + ' KB'
+      : algo.space_per_tenant_bytes + ' Bytes';
+    meta.innerHTML = `
+      <strong>Space per Key:</strong> ${mem} (${algo.space_complexity})<br>
+      <strong>Time Complexity:</strong> ${algo.time_complexity.worst} (Best: ${algo.time_complexity.best}, Avg: ${algo.time_complexity.average})<br>
+      <strong>Timing Precision:</strong> ${algo.timing_precision}<br>
+      <strong>Distributed Substrate:</strong> ${algo.distributed_substrate}<br>
+      <strong>Poisson Storm Performance:</strong> ${algo.poisson_simulation.accepted_requests} accepted (${algo.poisson_simulation.acceptance_rate_pct}%)<br>
+      <strong>Reference:</strong> Saleem (2026), Research Square DOI: 10.21203/rs.3.rs-10948293/v1
+    `;
+  }
+}
+
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+  loadAnalyticsData();
+});
 </script>
 
 </body>
