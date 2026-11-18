@@ -7,19 +7,6 @@ Saleem, U. (2026). *A Comparative Survey of API Rate-Limiting Algorithms: Token 
 
 ---
 
-## Academic Metadata
-
-- **Institution:** Faculty of Technology, University of Delhi
-- **Course:** Analysis and Design of Algorithms (ADA)
-- **Course Code:** 2932812301
-- **Authors:**
-  - Sudhanshu Shekhar Jha (Roll No. 25293916104)
-  - Tapendu Das (Roll No. 25293916107)
-- **Date:** 17 November 2026
-- **Repository:** https://github.com/sudhanshu25099-code/api-traffic-control
-
----
-
 ## Problem Statement
 
 Rate limiting is an online decision problem: for every incoming HTTP request, an API gateway must decide whether to admit (`HTTP 200`) or reject (`HTTP 429 Too Many Requests`) within sub-millisecond overhead. Under concurrent load across multiple asynchronous coroutines or distributed server instances, naive counter implementations suffer from race conditions that allow significant over-admission.
