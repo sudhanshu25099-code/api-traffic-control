@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>API Traffic Control — Technical Project Report</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 16mm 16mm 16mm 16mm;
+      @bottom-right {
+        content: counter(page);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+      }
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 9.8pt;
+      line-height: 1.55;
+      color: #1e293b;
+      background: #ffffff;
+    }
+
+    /* Cover / Header Section */
+    .header-card {
+      border: 1px solid #cbd5e1;
+      border-top: 4px solid #1e3a8a;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin-bottom: 22px;
+      background: #f8fafc;
+    }
+    .institution {
+      font-size: 8.5pt;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1e3a8a;
+      margin-bottom: 4px;
+    }
+    h1 {
+      font-size: 19pt;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.25;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 10.5pt;
+      font-weight: 500;
+      color: #475569;
+      margin-bottom: 14px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 8.5pt;
+    }
+    .meta-item strong {
+      display: block;
+      color: #64748b;
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    /* Headings */
+    h2 {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1.5px solid #cbd5e1;
+      padding-bottom: 4px;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 10.5pt;
+      font-weight: 600;
+      color: #1e3a8a;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+    }
+
+    p {
+      margin-bottom: 8px;
+      text-align: justify;
+    }
+
+    /* Lists */
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 10px;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px 0;
+      font-size: 8.5pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      padding: 7px 10px;
+      border: 1px solid #cbd5e1;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 600;
+    }
+    tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+
+    /* Callout & Highlights */
+    .callout {
+      border-left: 3.5px solid #2563eb;
+      background: #eff6ff;
+      padding: 10px 14px;
+      border-radius: 0 4px 4px 0;
+      margin: 12px 0;
+      font-size: 8.8pt;
+      page-break-inside: avoid;
+    }
+    .callout-title {
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-bottom: 3px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 1.5px 6px;
+      border-radius: 3px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-danger  { background: #fee2e2; color: #991b1b; }
+    .badge-info    { background: #e0e7ff; color: #3730a3; }
+
+    /* Code blocks & ASCII diagrams */
+    pre, code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    }
+    code {
+      font-size: 8.5pt;
+      background: #f1f5f9;
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: #0f172a;
+    }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 11px 14px;
+      border-radius: 5px;
+      font-size: 8pt;
+      line-height: 1.45;
+      overflow-x: auto;
+      margin: 10px 0 14px 0;
+      page-break-inside: avoid;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    .ascii-diagram {
+      background: #f8fafc;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      font-size: 7.6pt;
+      line-height: 1.35;
+      padding: 10px 12px;
+      border-radius: 4px;
+      white-space: pre;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER / METADATA CARD -->
+  <div class="header-card">
+    <div class="institution">Faculty of Technology &bull; University of Delhi</div>
+    <h1>API Traffic Control: Distributed Atomic Rate Limiter</h1>
+    <div class="subtitle">An Algorithmic Analysis & Distributed Implementation Grounded in Saleem (2026)</div>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Authors</strong>
+        Sudhanshu Shekhar Jha<br>Tapendu Das
+      </div>
+      <div class="meta-item">
+        <strong>Academic Context</strong>
+        Algorithms Design & Analysis (ADA)<br>Distributed Systems Core Project
+      </div>
+      <div class="meta-item">
+        <strong>Primary Anchor Paper</strong>
+        Saleem, U. (2026), Research Square<br>DOI: 10.21203/rs.3.rs-10948293/v1
+      </div>
+      <div class="meta-item">
+        <strong>System Stack</strong>
+        FastAPI &bull; PostgreSQL (AsyncPG)<br>Redis 7 (Lua) &bull; Docker &bull; Locust
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: EXECUTIVE SUMMARY -->
+  <h2>1. Executive Summary</h2>
+  <p>
+    Modern cloud API infrastructures expose critical services to unpredictable, concurrent user traffic. Without deterministic traffic governance, burst floods and malicious spikes lead to server saturation, cascading timeouts, and denial-of-service (DoS) conditions. Standard rate-limiting implementations frequently fail due to two architectural pitfalls:
+  </p>
+  <ul>
+    <li><strong>The In-Process Concurrency Trap:</strong> Local memory counters in Python coroutines suffer from race conditions under high concurrent volume, permitting 60% to 100% excess traffic beyond configured limits (collapsing entirely during simultaneous bursts).</li>
+    <li><strong>Relational Row Lock Bottlenecks:</strong> Maintaining per-request counters in relational databases using <code>SELECT ... FOR UPDATE</code> serializes incoming requests, creating massive lock contention and severely degrading throughput.</li>
+  </ul>
+  <p>
+    <strong>API Traffic Control</strong> resolves this challenge by strictly decoupling <em>policy persistence</em> from <em>transient state execution</em>. Access policies (tenant identities, tier capacities, algorithms, and replenishment rates) are stored relationally in PostgreSQL. Transient token counters are maintained and evaluated atomically inside Redis using custom pre-compiled Lua scripts (<code>EVALSHA</code>). Intercepted at line-speed by a pure Starlette ASGI middleware, the architecture guarantees strict mathematical compliance, sub-millisecond execution latency, and zero caching staleness.
+  </p>
+
+  <!-- SECTION 2: SYSTEM ARCHITECTURE -->
+  <h2>2. Architectural Decoupling: Policy vs. State</h2>
+  <p>
+    The core architectural innovation lies in isolating transactional metadata from volatile counters. Relational databases excel at relational queries and administrative ACID transactions, while in-memory stores excel at high-frequency atomic decrements.
+  </p>
+
+  <pre class="ascii-diagram">
+                       ┌─────────────────────────────────────────────────────────┐
+                       │          FastAPI ASGI Middleware Layer                  │
+                       │                                                         │        ┌─────────────────────────┐
+[ Client Request ] ────┼──▶ 1. Extract `X-API-Key` from Headers                  ┼───────▶│ PostgreSQL (Policy DB)  │
+                       │    2. Indexed Rule Lookup: SELECT * FROM rate_limit_... │        │ • Client Tiers & Auth   │
+                       │                                                         │        │ • Capacity & Window/Rate│
+                       │    3. Atomic Dispatch: EVALSHA(&lt;sha&gt;, key, rule_args)   │        └─────────────────────────┘
+                       │           │                                             │
+                       │           ▼                                             │        ┌─────────────────────────┐
+[ 200 OK / 429 ] ◀─────┼── 4. Inject RFC Response Headers & Execute Downstream   │◀───────│ Redis In-Memory State   │
+                       │      • X-RateLimit-Limit      • X-RateLimit-Remaining   │        │ • Atomic Lua Scripts    │
+                       │      • X-RateLimit-Reset      • Retry-After (on 429)    │        │ • Sub-ms EVALSHA Hash   │
+                       └─────────────────────────────────────────────────────────┘        └─────────────────────────┘
+  </pre>
+
+  <div class="callout">
+    <div class="callout-title">Architectural Rule: Zero Counter State in Relational Storage</div>
+    PostgreSQL is queried solely for tenant access rules via a unique indexed lookup (<code>~1.5ms</code>). It is never used to write or update counters. Transient state is exclusively mutated within Redis via Lua in <code>~0.8ms</code>, guaranteeing high-concurrency scalability without row lock contention.
+  </div>
+
+  <!-- SECTION 3: THEORETICAL ANALYSIS & RESEARCH GROUNDING -->
+  <div class="page-break"></div>
+  <h2>3. Algorithmic Landscape & Theoretical Grounding (Saleem, 2026)</h2>
+  <p>
+    Our system design is formally grounded in the comparative evaluation published by <strong>Umair Saleem (2026)</strong> in <em>"A Comparative Survey of API Rate-Limiting Algorithms: Token Bucket, Leaky Bucket, and Sliding Window"</em>. Saleem surveyed five foundational algorithms across synthetic Poisson traffic traces (1,057 requests over 100 seconds with artificial bursts at 40 req/s and 60 req/s).
+  </p>
+
+  <h3>3.1. Qualitative Algorithm Comparison (Saleem 2026, Table 1)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Algorithm</th>
+        <th>Burst Handling Profile</th>
+        <th>Memory Complexity</th>
+        <th>Timing Precision</th>
+        <th>Implementation Complexity</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Token Bucket</strong></td>
+        <td>Permits configurable bursts up to capacity $C$</td>
+        <td>$O(1)$ per client key</td>
+        <td>High (Continuous)</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td><strong>Leaky Bucket</strong></td>
+        <td>Smooths bursty arrivals to constant output rate</td>
+        <td>$O(1)$ per client key</td>
+        <td>High (Meter-equivalent)</td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td><strong>Fixed Window Counter</strong></td>
+        <td>Permits boundary bursts up to $2\times$ configured quota</td>
+        <td>$O(1)$ single integer</td>
+        <td>Low at window boundaries</td>
+        <td>Very Low</td>
+      </tr>
+      <tr>
+        <td><strong>Sliding Window Log</strong></td>
+        <td>Strict ceiling; zero boundary burst allowance</td>
+        <td>$O(n)$ entries per key</td>
+        <td>Exact / Absolute</td>
+        <td>Moderate</td>
+      </tr>
+      <tr>
+        <td><strong>Sliding Window Counter</strong></td>
+        <td>Weighted approximation of trailing window</td>
+        <td>$O(1)$ per client key</td>
+        <td>High (Approximation)</td>
+        <td>Moderate</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.2. Empirical Poisson Trace Simulation (Saleem 2026, Table 2)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Algorithm Evaluated</th>
+        <th>Requests Accepted</th>
+        <th>Requests Rejected</th>
+        <th>Acceptance Rate</th>
+        <th>Peak Admitted Rate</th>
+        <th>Burst 1 (194 sent)</th>
+        <th>Burst 2 (125 sent)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Token Bucket</strong></td>
+        <td><strong>844</strong></td>
+        <td>213</td>
+        <td><strong>79.8%</strong></td>
+        <td>29 req/s</td>
+        <td><strong>69 accepted</strong></td>
+        <td><strong>38 accepted</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Leaky Bucket</strong></td>
+        <td><strong>844</strong></td>
+        <td>213</td>
+        <td><strong>79.8%</strong></td>
+        <td>29 req/s</td>
+        <td><strong>69 accepted</strong></td>
+        <td><strong>38 accepted</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Fixed Window Counter</strong></td>
+        <td>775</td>
+        <td>282</td>
+        <td>73.3%</td>
+        <td>15 req/s</td>
+        <td>50 accepted</td>
+        <td>20 accepted</td>
+      </tr>
+      <tr>
+        <td><strong>Sliding Window Counter</strong></td>
+        <td>751</td>
+        <td>306</td>
+        <td>71.1%</td>
+        <td>13 req/s</td>
+        <td>50 accepted</td>
+        <td>19 accepted</td>
+      </tr>
+      <tr>
+        <td><strong>Sliding Window Log</strong></td>
+        <td>718</td>
+        <td>339</td>
+        <td>67.9%</td>
+        <td>10 req/s</td>
+        <td>50 accepted</td>
+        <td>20 accepted</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.3. Key Findings from Saleem (2026) Applied to Our Engine</h3>
+  <ul>
+    <li><strong>Decision Equivalence:</strong> Token Bucket and Leaky Bucket produce identical accept/reject decisions when deployed purely as admission filters. The leaky bucket's water level and the token bucket's depleted capacity are mathematical duals.</li>
+    <li><strong>Superior Burst Accommodation:</strong> Token Bucket accepted the largest proportion of total traffic (79.8%) and absorbed both burst spikes (69 and 38 requests) by utilizing accumulated capacity while preserving long-term rate constraints.</li>
+    <li><strong>The Sliding Window Trade-off:</strong> While Sliding Window Log enforces an exact ceiling (never exceeding 10 req/s), it achieves the lowest acceptance rate (67.9%) and demands unbounded $O(n)$ memory overhead, making it susceptible to memory exhaustion during DDoS attacks.</li>
+  </ul>
+
+  <!-- SECTION 4: ALGORITHMIC FORMULATIONS -->
+  <div class="page-break"></div>
+  <h2>4. Algorithmic Mechanics & Mathematical Formulations</h2>
+  <p>
+    Our system implements both <strong>Fixed Window Counter</strong> and <strong>Token Bucket</strong>, each authored in Python (as in-process baseline) and in optimized Lua scripts compiled into Redis.
+  </p>
+
+  <h3>4.1. Fixed Window Counter Model</h3>
+  <p>
+    Time is partitioned into discrete intervals $[k \cdot W, (k+1) \cdot W)$. A scalar counter tracks requests within the current interval:
+  </p>
+  $$\text{count}(t) = \sum_{i=1}^{M} \mathbf{1}_{\left[\lfloor t/W \rfloor W, \; t\right]}(t_i)$$
+  <p>
+    <strong>Redis Lua Formulation (<code>fixed_window.lua</code>):</strong>
+  </p>
+  <pre><code>local current = redis.call("INCR", KEYS[1])
+if current == 1 then
+    redis.call("EXPIRE", KEYS[1], window)
+end
+if current > capacity then
+    return {0, 0, reset_at, capacity} -- Rejected (HTTP 429)
+end
+return {1, capacity - current, reset_at, capacity} -- Allowed (HTTP 200)</code></pre>
+  <p>
+    <em>The $2\times$ Boundary Burst Artifact:</em> A client with quota $C=5$ can transmit 5 requests at $t = W - \epsilon$ and 5 requests at $t = W + \epsilon$. Both bursts are accepted, admitting $2C = 10$ requests within a span of $2\epsilon$ seconds.
+  </p>
+
+  <h3>4.2. Token Bucket Continuous Model</h3>
+  <p>
+    A container of maximum capacity $C$ continuously accumulates tokens at rate $r$. Each request consumes 1 token. When idle, tokens accumulate up to $C$. When $t_{\text{now}} > t_{\text{last}}$, fractional replenishment is evaluated dynamically:
+  </p>
+  $$\text{tokens}(t) = \min\left(C, \; \text{tokens}(t_{\text{last}}) + (t - t_{\text{last}}) \cdot r\right) - 1$$
+  <p>
+    <strong>Redis Lua Formulation (<code>token_bucket.lua</code>):</strong>
+  </p>
+  <pre><code>local time_arr = redis.call("TIME")
+local now = tonumber(time_arr[1]) + (tonumber(time_arr[2]) / 1000000)
+local delta = math.max(0, now - last_updated)
+local tokens = math.min(capacity, current_tokens + (delta * refill_rate))
+
+if tokens < 1 then
+    return {0, math.floor(tokens), reset_at, capacity} -- Rejected (HTTP 429)
+end
+
+redis.call("HMSET", KEYS[1], "tokens", tokens - 1, "last_updated", now)
+return {1, math.floor(tokens - 1), reset_at, capacity} -- Allowed (HTTP 200)</code></pre>
+  <p>
+    <em>Clock Skew Mitigation:</em> Timestamps are obtained directly from the Redis engine via <code>redis.call('TIME')</code>, eliminating discrepancies caused by host clock drift across distributed application nodes.
+  </p>
+
+  <!-- SECTION 5: MULTI-TENANT TIER MAPPING -->
+  <h2>5. Multi-Tenant Tier Mapping & Justification</h2>
+  <p>
+    Rather than imposing a monolithic rate-limiting strategy, our system matches the algorithm's mathematical profile to tenant service tiers:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Client Account Tier</th>
+        <th>Assigned API Key</th>
+        <th>Algorithm Deployed</th>
+        <th>Configured Capacity</th>
+        <th>Replenishment / Window</th>
+        <th>Architectural Justification</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Free / Demo Tier</strong><br>(Demo Corp)</td>
+        <td><code>demo-key</code></td>
+        <td><strong>Fixed Window</strong></td>
+        <td>5 requests</td>
+        <td>60 seconds</td>
+        <td>Minimizes compute and Redis memory overhead ($O(1)$ single 64-bit integer). The $2\times$ boundary slack is commercially acceptable for non-paying users.</td>
+      </tr>
+      <tr>
+        <td><strong>Pro Tier</strong><br>(Pro Inc)</td>
+        <td><code>pro-key</code></td>
+        <td><strong>Token Bucket</strong></td>
+        <td>100 tokens</td>
+        <td>1.67 tokens / sec<br>(100 req / min)</td>
+        <td>Accommodates natural developer burst patterns (e.g., page reloads, webhook bursts) up to 100 requests without false 429 rejections (Saleem, 2026).</td>
+      </tr>
+      <tr>
+        <td><strong>Enterprise Tier</strong><br>(Enterprise Ltd)</td>
+        <td><code>enterprise-key</code></td>
+        <td><strong>Fixed Window</strong></td>
+        <td>1,000 requests</td>
+        <td>60 seconds</td>
+        <td>Ultra-fast evaluation for high-volume enterprise pipelines requiring high throughput and low overhead per transaction.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 6: EMPIRICAL BENCHMARKS -->
+  <div class="page-break"></div>
+  <h2>6. Empirical Benchmarks & Experimental Proof</h2>
+
+  <h3>6.1. The Concurrency Proof: In-Process Failure vs. Atomic Redis Lua</h3>
+  <p>
+    To validate the necessity of Redis Lua execution over in-process memory limiters, we evaluated the system across two distinct experimental paradigms: (1) a single-pass asynchronous unit test in <code>tests/test_algorithms.py</code>, and (2) a multi-trial concurrency burst sweep across increasing parallel batch sizes ($N = 20, 100, 1000$).
+  </p>
+
+  <h4>A. Single-Pass Unit Test Assertion (tests/test_algorithms.py)</h4>
+  <p>
+    In a single pytest run with 20 asynchronous coroutines targeting a capacity limit of 10, non-deterministic event-loop coroutine interleaving allowed <strong>16 of 20 requests</strong> through—a <strong>60% race condition leak</strong>:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Execution Substrate</th>
+        <th>Test Scenario (Single Run)</th>
+        <th>Configured Limit</th>
+        <th>Actual Allowed</th>
+        <th>Violation Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>In-Process Python Baseline</strong> (<code>InProcessFixedWindow</code>)</td>
+        <td>20 concurrent coroutines</td>
+        <td>10 requests</td>
+        <td><strong>16 requests</strong></td>
+        <td><span class="badge badge-danger">FAILED (60% Race Leak)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Redis + Atomic Lua</strong> (<code>RateLimitMiddleware</code>)</td>
+        <td>20 concurrent coroutines</td>
+        <td>10 requests</td>
+        <td><strong>10 requests</strong></td>
+        <td><span class="badge badge-success">PASSED (100% Strict Compliance)</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>B. Multi-Trial Concurrency Burst Sweep (20 Trials per Size, Limit = 10)</h4>
+  <p>
+    When parallel requests arrive simultaneously without network jitter (via <code>asyncio.gather</code>, simulating an instant burst or retry storm), the non-atomic check-and-increment window in Python degenerates completely, allowing <strong>100% of requests</strong> to pass. Conversely, Redis Lua maintains exact, zero-tolerance compliance across all batch sizes:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Batch Size ($N$)</th>
+        <th>Execution Substrate</th>
+        <th>Configured Limit</th>
+        <th>Mean Allowed</th>
+        <th>Min / Max</th>
+        <th>Leak / Violation Rate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>20 parallel reqs</strong></td>
+        <td>In-Process Python<br><strong>Redis + Atomic Lua</strong></td>
+        <td>10 requests<br>10 requests</td>
+        <td><strong>20.0</strong><br><strong>10.0</strong></td>
+        <td>20 / 20<br>10 / 10</td>
+        <td><span class="badge badge-danger">100% Leak (10 reqs over)</span><br><span class="badge badge-success">0% Violation (Exact)</span></td>
+      </tr>
+      <tr>
+        <td><strong>100 parallel reqs</strong></td>
+        <td>In-Process Python<br><strong>Redis + Atomic Lua</strong></td>
+        <td>10 requests<br>10 requests</td>
+        <td><strong>100.0</strong><br><strong>10.0</strong></td>
+        <td>100 / 100<br>10 / 10</td>
+        <td><span class="badge badge-danger">100% Leak (90 reqs over)</span><br><span class="badge badge-success">0% Violation (Exact)</span></td>
+      </tr>
+      <tr>
+        <td><strong>1,000 parallel reqs</strong></td>
+        <td>In-Process Python<br><strong>Redis + Atomic Lua</strong></td>
+        <td>10 requests<br>10 requests</td>
+        <td><strong>1,000.0</strong><br><strong>10.0</strong></td>
+        <td>1000 / 1000<br>10 / 10</td>
+        <td><span class="badge badge-danger">100% Leak (990 reqs over)</span><br><span class="badge badge-success">0% Violation (Exact)</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <em>Theoretical Explanation:</em> In Python asyncio, coroutines interleave execution between reading <code>self.windows.get(...)</code> and incrementing it. As concurrency scales, all requests read the un-incremented counter during the same tick. Redis executes Lua scripts as an isolated, single-threaded transaction, guaranteeing absolute atomicity regardless of arrival density.
+  </p>
+
+  <h3>6.2. Locust Distributed Load Testing (1,000 Concurrent Users)</h3>
+  <p>
+    Load testing was conducted using Locust across 1,000 concurrent simulated users over 60 seconds against a Dockerized deployment:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Limiter Algorithm</th>
+        <th>Substrate</th>
+        <th>Sustained Throughput</th>
+        <th>Median Latency (p50)</th>
+        <th>95th Percentile (p95)</th>
+        <th>99th Percentile (p99)</th>
+        <th>Rejection Ratio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Fixed Window</strong></td>
+        <td>Redis + Lua</td>
+        <td><strong>544.2 req/s</strong></td>
+        <td>1,700 ms</td>
+        <td>3,700 ms</td>
+        <td>6,200 ms</td>
+        <td><strong>93.8% (429)</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Token Bucket</strong></td>
+        <td>Redis + Lua</td>
+        <td><strong>529.1 req/s</strong></td>
+        <td>1,700 ms</td>
+        <td>3,900 ms</td>
+        <td>6,400 ms</td>
+        <td><strong>99.3% (429)</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <em>Latency Component Decomposition (per request):</em>
+  </p>
+  <ul>
+    <li>PostgreSQL Indexed Rule Query (<code>api_key</code> index): <strong>~1.5 ms</strong></li>
+    <li>Redis Atomic Lua Execution (<code>EVALSHA</code>): <strong>~0.8 ms</strong></li>
+    <li>FastAPI Routing & Header Serialization: <strong>~2.0 ms</strong></li>
+    <li>Total Middleware Overhead: <strong>~4.3 ms</strong></li>
+  </ul>
+
+  <h3>6.3. Policy Propagation & Staleness Analysis (<code>scripts/staleness_test.py</code>)</h3>
+  <p>
+    A custom harness mutated client capacities in PostgreSQL during active traffic streams to observe policy propagation latency:
+  </p>
+  <ul>
+    <li>Total requests sent during mutation: <strong>200</strong></li>
+    <li>Requests served with stale/outdated rule: <strong>0 / 200</strong></li>
+    <li>Effective Rule Propagation Latency: <strong>&lt; 2.0 milliseconds</strong></li>
+  </ul>
+
+  <!-- SECTION 7: FRONTEND VERIFICATION SUITE -->
+  <h2>7. Client Verification: Hallmark Minimalist Test Lab</h2>
+  <p>
+    The system includes a dedicated, zero-dependency Hallmark modern-minimal frontend running on <code>http://localhost:5500</code>. It provides:
+  </p>
+  <ul>
+    <li><strong>Account Tier Management Cards:</strong> Real-time letterpress cards displaying live credentials (<code>demo-key</code>, <code>pro-key</code>, <code>enterprise-key</code>), capacity thresholds, and active countdown meters.</li>
+    <li><strong>Interactive Algorithm Test Lab:</strong> A browser-based test suite that executes HTTP assertions against the live backend:
+      <ol>
+        <li><em>Boundary & 429 Limit:</em> Sends 6 rapid requests to demonstrate the exact transition from HTTP 200 to HTTP 429 with <code>Retry-After</code> headers.</li>
+        <li><em>Authentication Guard:</em> Validates immediate 401 Unauthorized rejection on unknown API keys.</li>
+        <li><em>Contract Header Verification:</em> Inspects <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, and <code>X-RateLimit-Reset</code>.</li>
+        <li><em>Concurrency Simulation:</em> Dispatches 10 parallel requests simultaneously via <code>Promise.all()</code> to prove Redis atomic Lua enforcement live in the browser.</li>
+      </ol>
+    </li>
+  </ul>
+
+  <!-- SECTION 8: BIBLIOGRAPHY -->
+  <h2>8. Academic References</h2>
+  <ol>
+    <li>Saleem, U. (2026). <em>A Comparative Survey of API Rate-Limiting Algorithms: Token Bucket, Leaky Bucket, and Sliding Window.</em> Research Square. DOI: 10.21203/rs.3.rs-10948293/v1.</li>
+    <li>Turner, J. S. (1986). <em>New directions in communications (or which way to the information age?).</em> IEEE Communications Magazine, vol. 24, no. 10, pp. 8–15.</li>
+    <li>Bosk, M., Gajić, M., Schwarzmann, S., Lange, S., & Zinner, T. (2021). <em>HTBQueue: A Hierarchical Token Bucket Implementation for the OMNeT++/INET Framework.</em> arXiv:2109.12879.</li>
+    <li>Bartkov, M., & Borovikov, D. (2022). <em>Selection of a Suitable Algorithm for the Implementation of Rate-Limiter Based on Bucket4j.</em> International Journal of Online and Biomedical Engineering (iJOE), 18(4), pp. 52–63.</li>
+    <li>Lyu, N., Wang, Y., Cheng, Z., Zhang, Q., & Chen, F. (2025). <em>Multi-Objective Adaptive Rate Limiting for Microservices Using Deep Reinforcement Learning.</em> arXiv:2511.03279.</li>
+  </ol>
+
+</body>
+</html>

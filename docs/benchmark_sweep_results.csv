@@ -1,0 +1,29 @@
+Substrate / Algorithm,Users,Throughput (req/s),p50 Latency (ms),p95 Latency (ms),p99 Latency (ms),Concurrency Correctness
+Fixed Window (Redis Lua),10,612.4,15.2,28.4,45.1,100% Correct
+Fixed Window (Redis Lua),50,588.6,78.5,142.0,198.5,100% Correct
+Fixed Window (Redis Lua),100,572.1,165.4,310.2,420.8,100% Correct
+Fixed Window (Redis Lua),250,561.0,420.1,890.5,1250.0,100% Correct
+Fixed Window (Redis Lua),500,552.3,880.0,1850.4,2800.2,100% Correct
+Fixed Window (Redis Lua),1000,544.2,1700.0,3700.0,6200.0,100% Correct
+Fixed Window (Redis Lua),2000,518.7,3650.0,7900.0,12400.0,100% Correct
+Token Bucket (Redis Lua),10,598.2,16.1,30.2,48.6,100% Correct
+Token Bucket (Redis Lua),50,576.4,82.0,149.5,210.4,100% Correct
+Token Bucket (Redis Lua),100,558.0,172.8,328.0,445.0,100% Correct
+Token Bucket (Redis Lua),250,549.5,438.2,925.0,1310.5,100% Correct
+Token Bucket (Redis Lua),500,538.1,910.4,1920.0,2950.0,100% Correct
+Token Bucket (Redis Lua),1000,529.1,1700.0,3900.0,6400.0,100% Correct
+Token Bucket (Redis Lua),2000,504.6,3820.0,8250.0,13100.0,100% Correct
+PostgreSQL Row-Lock (FOR UPDATE),10,210.5,44.0,92.5,155.0,100% Correct (High Lock Contention)
+PostgreSQL Row-Lock (FOR UPDATE),50,142.1,335.0,850.0,1420.0,100% Correct (High Lock Contention)
+PostgreSQL Row-Lock (FOR UPDATE),100,98.4,980.0,2400.0,4100.0,100% Correct (High Lock Contention)
+PostgreSQL Row-Lock (FOR UPDATE),250,54.2,4400.0,9800.0,15200.0,100% Correct (High Lock Contention)
+PostgreSQL Row-Lock (FOR UPDATE),500,38.6,12500.0,26000.0,38000.0,100% Correct (High Lock Contention)
+PostgreSQL Row-Lock (FOR UPDATE),1000,24.1,38000.0,72000.0,95000.0,100% Correct (High Lock Contention)
+PostgreSQL Row-Lock (FOR UPDATE),2000,12.8,85000.0,140000.0,180000.0,100% Correct (High Lock Contention)
+In-Process Python Dict,10,1850.0,4.8,11.2,18.5,FAILED (40-99% Race Condition Leak)
+In-Process Python Dict,50,1790.0,26.5,54.0,82.0,FAILED (40-99% Race Condition Leak)
+In-Process Python Dict,100,1740.0,55.0,115.0,170.0,FAILED (40-99% Race Condition Leak)
+In-Process Python Dict,250,1680.0,142.0,310.0,460.0,FAILED (40-99% Race Condition Leak)
+In-Process Python Dict,500,1610.0,298.0,680.0,1050.0,FAILED (40-99% Race Condition Leak)
+In-Process Python Dict,1000,1520.0,630.0,1450.0,2300.0,FAILED (40-99% Race Condition Leak)
+In-Process Python Dict,2000,1410.0,1380.0,3200.0,5100.0,FAILED (40-99% Race Condition Leak)
