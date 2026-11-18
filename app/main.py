@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
-from app.database import engine
+from app.database import engine, init_db
 from app.middleware import RateLimitMiddleware
 from app.redis_client import close as redis_close
 from app.redis_client import connect as redis_connect
@@ -13,6 +15,7 @@ from app.routers import admin, analytics, dummy_api
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await init_db()                # auto-create tables and seed data if needed
     await redis_connect()          # load Lua scripts once
     yield
     await redis_close()
@@ -41,3 +44,9 @@ app.include_router(analytics.router)
 @app.get("/health", tags=["meta"])
 async def health() -> dict:
     return {"status": "ok"}
+
+
+# Mount the Hallmark Frontend directly at the root for unified single-URL deployment
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+if FRONTEND_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
