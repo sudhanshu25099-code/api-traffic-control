@@ -36,12 +36,16 @@ def client() -> redis.Redis:
 
 
 async def evalsha(name: str, keys: list[str], args: list) -> list:
-    """Run a cached Lua script by SHA. Re-loads on NOSCRIPT."""
+    """Run a cached Lua script by SHA. Re-loads on NOSCRIPT or on-demand."""
+    c = client()
+    if name not in _scripts:
+        source = (LUA_DIR / f"{name}.lua").read_text()
+        _scripts[name] = await c.script_load(source)
     try:
-        return await client().evalsha(_scripts[name], len(keys), *keys, *args)
+        return await c.evalsha(_scripts[name], len(keys), *keys, *args)
     except redis.ResponseError as exc:
         if "NOSCRIPT" not in str(exc):
             raise
         source = (LUA_DIR / f"{name}.lua").read_text()
-        _scripts[name] = await client().script_load(source)
-        return await client().evalsha(_scripts[name], len(keys), *keys, *args)
+        _scripts[name] = await c.script_load(source)
+        return await c.evalsha(_scripts[name], len(keys), *keys, *args)

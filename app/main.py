@@ -16,7 +16,10 @@ from app.routers import admin, analytics, dummy_api
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()                # auto-create tables and seed data if needed
-    await redis_connect()          # load Lua scripts once
+    try:
+        await redis_connect()      # load Lua scripts once
+    except Exception as exc:
+        print(f"[lifespan] Warning: Redis connection deferred: {exc}")
     yield
     await redis_close()
     await engine.dispose()
