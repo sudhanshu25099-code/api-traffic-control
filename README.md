@@ -2,6 +2,8 @@
 
 An algorithmic and distributed systems implementation of high-throughput API rate limiting using PostgreSQL for durable policy configuration and Redis with atomic pre-compiled Lua scripts (EVALSHA) for sub-millisecond, race-free state evaluation.
 
+**Live deployment:** https://api-traffic-control.up.railway.app/
+
 Grounded in theoretical research from:
 Saleem, U. (2026). *A Comparative Survey of API Rate-Limiting Algorithms: Token Bucket, Leaky Bucket, and Sliding Window*. Research Square. DOI: 10.21203/rs.3.rs-10948293/v1.
 
@@ -89,20 +91,22 @@ api-traffic-control/
 |   |-- lua/                     # Pre-compiled Redis Lua scripts executed via EVALSHA
 |   |   |-- fixed_window.lua
 |   |   `-- token_bucket.lua
-|   |-- routers/                 # FastAPI routing (data endpoints, admin key management)
-|   |   |-- admin.py
-|   |   `-- api.py
+|   |-- routers/                 # FastAPI routing (API endpoints, admin, analytics)
+|   |   |-- admin.py             # Admin: per-key rule management
+|   |   |-- analytics.py        # Analytics: benchmark and complexity data endpoints
+|   |   |-- dummy_api.py        # Demo API endpoints exercised by the frontend Test Lab
+|   |   `-- __init__.py
 |   |-- config.py                # Environment configuration via pydantic-settings
 |   |-- crud.py                  # Raw async SQL queries for PostgreSQL policy lookups
-|   |-- database.py              # Async SQLAlchemy engine and session management
-|   |-- main.py                  # Application entry point and lifespan handlers
+|   |-- database.py              # Async SQLAlchemy engine, session management, auto-migration
+|   |-- main.py                  # Application entry point, lifespan handlers, static mount
 |   |-- middleware.py            # High-performance pure ASGI rate-limiting middleware
 |   |-- models.py                # Pydantic schema validation models
 |   `-- redis_client.py          # Redis connection pool and EVALSHA script loader
 |-- docs/
 |   |-- benchmark_sweep_results.csv # Locust sweep data from 10 to 2,000 users
 |   `-- project_report.html         # Formatted engineering and academic research report
-|-- frontend/                    # Interactive Test Lab and Plan Management Dashboard
+|-- frontend/                    # Interactive Test Lab and Analytics Dashboard (served by FastAPI)
 |   |-- base.css
 |   |-- index.html
 |   |-- style.css
@@ -116,7 +120,7 @@ api-traffic-control/
 |   |-- locustfile.py            # Locust load generation scenario
 |   `-- test_algorithms.py       # Pytest unit and integration test suite
 |-- docker-compose.yml           # Multi-container orchestration (App, PostgreSQL, Redis)
-|-- Dockerfile                   # Multi-stage Python 3.11 container build
+|-- Dockerfile                   # Python 3.11 container build with dynamic port binding
 |-- requirements.txt             # Locked production dependencies
 `-- README.md                    # Project documentation
 ```
@@ -163,19 +167,14 @@ Healthchecks ensure the FastAPI application waits until both PostgreSQL and Redi
 docker compose ps
 ```
 
-### Step 3: Initialize Database Schema and Seed Data
-Execute the SQL migrations inside the running PostgreSQL container:
-```bash
-docker compose exec -T postgres psql -U postgres -d traffic < sql/schema.sql
-docker compose exec -T postgres psql -U postgres -d traffic < sql/seed.sql
-```
+The application automatically runs `schema.sql` and `seed.sql` on startup via the `init_db()` lifespan handler. No manual migration step is required.
 
 The seed script creates the following client accounts:
 - `demo-key`: Fixed Window, capacity 5, window 60s (Free Tier)
 - `pro-key`: Token Bucket, capacity 100, refill rate 1.67 tokens/s (Pro Tier)
 - `enterprise-key`: Fixed Window, capacity 1000, window 60s (Enterprise Tier)
 
-### Step 4: Verify API Endpoints
+### Step 3: Verify API Endpoints
 Send an authorized request using `curl`:
 ```bash
 curl -i -H "X-API-Key: demo-key" http://localhost:8000/api/data
@@ -199,16 +198,11 @@ x-ratelimit-remaining: 0
 x-ratelimit-reset: 60
 ```
 
+The interactive frontend Test Lab and Analytics Dashboard are served directly by FastAPI at:
+`http://localhost:8000/`
+
 Interactive OpenAPI Swagger documentation is available at:
 `http://localhost:8000/docs`
-
-### Step 5: Launch the Frontend Test Lab
-The frontend is a lightweight client interface that connects directly to the backend. It can be opened directly or served using Python's static server:
-```bash
-cd frontend
-python -m http.server 3000
-```
-Open `http://localhost:3000` in your web browser. The dashboard includes live plan displays, key input forms, and an in-browser test lab running boundary and concurrency validations.
 
 ---
 
@@ -241,6 +235,31 @@ Execute multi-user load testing across 10 to 2,000 concurrent virtual users:
 ```bash
 locust -f tests/locustfile.py --headless -u 1000 -r 100 -t 60s --host http://localhost:8000
 ```
+
+### 4. Analytics and Complexity API
+The deployed backend exposes machine-readable benchmark and complexity data used to populate the Analytics Dashboard:
+```bash
+curl https://api-traffic-control.up.railway.app/api/analytics/benchmarks
+curl https://api-traffic-control.up.railway.app/api/analytics/complexity
+```
+These endpoints are excluded from rate limiting and return JSON data for throughput sweep, latency percentiles, race condition results, and big-O complexity comparisons across all substrates.
+
+---
+
+## Live Deployment
+
+The project is deployed on Railway at:
+
+| URL | Description |
+|---|---|
+| https://api-traffic-control.up.railway.app/ | Frontend Test Lab and Analytics Dashboard |
+| https://api-traffic-control.up.railway.app/docs | Interactive Swagger UI |
+| https://api-traffic-control.up.railway.app/health | Health check endpoint |
+| https://api-traffic-control.up.railway.app/api/data | Rate-limited data endpoint (requires `X-API-Key` header) |
+| https://api-traffic-control.up.railway.app/api/analytics/benchmarks | Throughput and latency sweep data |
+| https://api-traffic-control.up.railway.app/api/analytics/complexity | Algorithm complexity comparison data |
+
+The deployment stack on Railway consists of three services: the FastAPI application container, a managed PostgreSQL 16 database, and a managed Redis 7 instance. The database schema and seed data are applied automatically on each container startup.
 
 ---
 
